@@ -11,9 +11,9 @@
     <OutputFileExtension>.obj</OutputFileExtension>
     <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
     <Language>ASSEMBLY</Language>
-    <AssemblyName>TP3</AssemblyName>
-    <Name>TP3</Name>
-    <RootNamespace>TP3</RootNamespace>
+    <AssemblyName>TP_Final</AssemblyName>
+    <Name>TP_Final</Name>
+    <RootNamespace>TP_Final</RootNamespace>
     <ToolchainFlavour>Native</ToolchainFlavour>
     <EntryFile>$(MSBuildProjectDirectory)\main.asm</EntryFile>
     <KeepTimersRunning>true</KeepTimersRunning>
