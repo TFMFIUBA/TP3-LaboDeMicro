@@ -1,0 +1,32 @@
+<ASSEMBLER_INFO>
+ <VERSION>2.2.8</VERSION>
+ <DEVICE>"ATmega328P"</DEVICE>
+ <WORKING_DIR>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\PruebaSensores\PruebaSensores\Debug</WORKING_DIR>
+ <INCLUDE_PATH>
+  <DIR>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc</DIR>
+  <DIR>C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avrassembler\Include</DIR>
+  <DIR></DIR>
+ </INCLUDE_PATH>
+ <SOURCE_FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\PruebaSensores\PruebaSensores\main.asm</SOURCE_FILE>
+ <INCLUDED_FILES>
+  <FILE>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc</FILE>
+ </INCLUDED_FILES>
+ <OBJECT_FILES>
+  <FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\PruebaSensores\PruebaSensores\Debug\PruebaSensores.obj</FILE>
+ </OBJECT_FILES>
+ <HEX_FILES>
+  <FILE>PruebaSensores.hex</FILE>
+ </HEX_FILES>
+ <OUTPUT_FILES>
+  <FILE>PruebaSensores.map</FILE>
+  <FILE>PruebaSensores.lss</FILE>
+ </OUTPUT_FILES>
+ <LABELS>
+  <loop><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\PruebaSensores\PruebaSensores\main.asm</FILE><LINE>25</LINE></loop>
+  <sigo_centro><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\PruebaSensores\PruebaSensores\main.asm</FILE><LINE>55</LINE></sigo_centro>
+  <doblar_izq_fuerte><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\PruebaSensores\PruebaSensores\main.asm</FILE><LINE>47</LINE></doblar_izq_fuerte>
+  <doblar_izq_suave><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\PruebaSensores\PruebaSensores\main.asm</FILE><LINE>51</LINE></doblar_izq_suave>
+  <doblar_der_fuerte><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\PruebaSensores\PruebaSensores\main.asm</FILE><LINE>63</LINE></doblar_der_fuerte>
+  <doblar_der_suave><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\PruebaSensores\PruebaSensores\main.asm</FILE><LINE>59</LINE></doblar_der_suave>
+ </LABELS>
+</ASSEMBLER_INFO>
