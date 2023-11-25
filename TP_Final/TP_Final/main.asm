@@ -60,132 +60,142 @@ sigo_centro: ;voy a toda vel (255)
   ldi VEL_MOTOR_IZQ, VEL_MAX		       
 ret
 
-doblar_izq_fuerte: ;en mot der subo la vel en un 10%
-                   ;en mot izq bajo la vel en un 10%
-  adc VEL_MOTOR_DER_AUX, VAR_FUERTE
-	
-  cpi VEL_MOTOR_DER_AUX, VEL_MAX ; ESTOY EN VEL MAX(255)?
-	brsh fijo_vel_der ; si la vel der se pasa de 255 -> fijo su valor
-	
+doblar_izq_fuerte:
+
+  mov VEL_MOTOR_DER_AUX,VEL_MOTOR_DER
+
+  cpi VEL_MOTOR_DER, VEL_MAX ; 1° veo si VEL_MOTOR_DER = 255
+        breq red_fuerte_vel_izquierda ;si VEL_MOTOR_DER = 255 debo reducir la vel_motor_izq
+
+  add VEL_MOTOR_DER_AUX, VAR_FUERTE
+  cpi VEL_MOTOR_DER_AUX, VEL_MAX ; ¿vel_motor_der = vel_motor_der + var_fuerte > 255 (vel max)?
+        brlo subo_fuerte_vel_derecha ;salta si la suma es menor
+
   cpi VEL_MOTOR_DER, VEL_MAX
-	brne inc_vel_der
-  ret
-  
-  inc_vel_der:
+        brsh fijo_vel_derecha
+   ret
+
+  subo_fuerte_vel_derecha:
     add VEL_MOTOR_DER, VAR_FUERTE
 	ret
-    
-  fijo_vel_der: ;subo la vel del mot derecho
-    ldi VEL_MOTOR_DER, VEL_MAX
-    sub VEL_MOTOR_DER_AUX, VAR_FUERTE //                                  ACTUALIZAR VALOR AUXILIAR Y SALIR AL SETEAR VEL MAX
-    cpi VEL_MOTOR_IZQ, 25 ; 25= var_fuerte
-    brsh dec_vel_mot_izq ;si la vel izq es mayor a la var fuerte, puedo decrementar su valor
-    cpi VEL_MOTOR_IZQ, 25 ; 25= var_fuerte
-    brlo fijo_vel_mot_izq
-  ret
-  
-  fijo_vel_mot_izq:
-    ldi VEL_MOTOR_IZQ, 0x00 
-  ret
-  
-  dec_vel_mot_izq:
-    sub VEL_MOTOR_IZQ, VAR_FUERTE
-ret             
 
-doblar_izq_suave: ;en mot der subo la vel en un 2%
-                   ;en mot izq bajo la vel en un 2%
+  red_fuerte_vel_izquierda:
+    cpi VEL_MOTOR_IZQ, VAR_FUERTE_VALOR
+          brsh decre_fuerte_vel_mot_izq        ;si la vel izq es mayor a la var suave, puedo decrementar su valor
+    cpi VEL_MOTOR_IZQ, VAR_FUERTE_VALOR
+          brlo fijo_vel_mot_izq_f
+    ret
+
+   fijo_vel_derecha:
+     ldi VEL_MOTOR_DER, VEL_MAX
+   ret
+
+   fijo_vel_mot_izq_f:
+     ldi VEL_MOTOR_IZQ, 0x00 
+   ret
+
+   decre_fuerte_vel_mot_izq:
+     sub VEL_MOTOR_IZQ,VAR_FUERTE
+   ret             
+
+doblar_izq_suave:
+
+  mov VEL_MOTOR_DER_AUX,VEL_MOTOR_DER
+
+  cpi VEL_MOTOR_DER, VEL_MAX ; 1° veo si VEL_MOTOR_DER = 255
+        breq red_suave_vel_izquierda ;si VEL_MOTOR_DER = 255 debo reducir la vel_motor_izq
+
   add VEL_MOTOR_DER_AUX, VAR_SUAVE
-	
-  cpi VEL_MOTOR_DER_AUX, VEL_MAX ; ESTOY EN VEL MAX(255)?
-	brsh fijo_vel_der_s ; si la vel der se pasa de 255 -> fijo su valor
-	
+  cpi VEL_MOTOR_DER_AUX, VEL_MAX ; ¿vel_motor_der = vel_motor_der + var_fuerte > 255 (vel max)?
+        brlo subo_suave_vel_derecha ;salta si la suma es menor
+
   cpi VEL_MOTOR_DER, VEL_MAX
-	brne inc_vel_der_s
+        brsh fijo_vel_derecha
   ret
-  
-  inc_vel_der_s:
+
+  subo_suave_vel_derecha:
     add VEL_MOTOR_DER, VAR_SUAVE
-  ret
-   
-   fijo_vel_der_s: ;subo la vel del mot derecho
-    ldi VEL_MOTOR_DER, VEL_MAX
-		sub VEL_MOTOR_DER_AUX, VAR_SUAVE
-		cpi VEL_MOTOR_IZQ, 5
-		brsh dec_vel_mot_izq_s ;si la vel izq es mayor a la var suave, puedo decrementar su valor
-		cpi VEL_MOTOR_IZQ, 5
-		brlo fijo_vel_mot_izq_s
 	ret
-  
-  fijo_vel_mot_izq_s:
-    ldi VEL_MOTOR_IZQ, 0x00 
-  ret
-  
-  dec_vel_mot_izq_s:
-    sub VEL_MOTOR_IZQ, VAR_SUAVE
-  ret             
+
+  red_suave_vel_izquierda:
+    cpi VEL_MOTOR_IZQ, VAR_SUAVE_VALOR
+          brsh decre_suave_vel_mot_izq        ;si la vel izq es mayor a la var suave, puedo decrementar su valor
+    cpi VEL_MOTOR_IZQ, VAR_SUAVE_VALOR
+          brlo fijo_vel_mot_izq_f
+    ret
+
+   decre_suave_vel_mot_izq:
+     sub VEL_MOTOR_IZQ,VAR_SUAVE
+   ret             
 
 			          
-doblar_der_fuerte: ;en mot izq subo la vel en un 10%
-                   ;en mot der bajo la vel en un 10%
-  adc VEL_MOTOR_IZQ_AUX, VAR_FUERTE
-	
-  cpi VEL_MOTOR_IZQ_AUX, VEL_MAX ; ESTOY EN VEL MAX(255)?
-	brsh fijo_vel_izq ; si la vel der se pasa de 255 -> fijo su valor
-  
-  cpi VEL_MOTOR_IZQ, VEL_MAX
-	brne inc_vel_izq
-  ret
-  
-  inc_vel_izq:
-    add VEL_MOTOR_IZQ, VAR_FUERTE
-  ret
-  
-  fijo_vel_izq: ;subo la vel del mot izquierdo
-    ldi VEL_MOTOR_IZQ, VEL_MAX
-    sub VEL_MOTOR_IZQ_AUX, VAR_FUERTE
-    cpi VEL_MOTOR_DER, 25 ; 25= var_fuerte
-    brsh dec_vel_mot_der ;si la vel der es mayor a la var fuerte, puedo decrementar su valor
-    cpi VEL_MOTOR_DER, 25 ; 25= var_fuerte
-    brlo fijo_vel_mot_der
-  ret
-  
-  fijo_vel_mot_der:
-    ldi VEL_MOTOR_DER, 0x00 
-  ret
-  
-  dec_vel_mot_der:
-    sub VEL_MOTOR_DER,VAR_FUERTE
-ret  
+doblar_der_fuerte:
 
-doblar_der_suave: ;en mot izq subo la vel en un 2%
-                   ;en mot der bajo la vel en un 2%
-  add VEL_MOTOR_IZQ_AUX, VAR_SUAVE
-  
-  cpi VEL_MOTOR_IZQ_AUX, VEL_MAX ; ESTOY EN VEL MAX(255)?
-  brsh fijo_vel_izq_s ; si la vel iz se pasa de 255 -> fijo su valor
-  
+  mov VEL_MOTOR_IZQ_AUX,VEL_MOTOR_IZQ
+
+  cpi VEL_MOTOR_IZQ, VEL_MAX ; 1° veo si VEL_MOTOR_IZQ = 255
+        breq red_fuerte_vel_derecha ;si VEL_MOTOR_IZQ = 255 debo reducir la vel_motor_der
+
+  add VEL_MOTOR_IZQ_AUX, VAR_FUERTE
+  cpi VEL_MOTOR_IZQ_AUX, VEL_MAX ; ¿vel_motor_izq = vel_motor_izq + var_fuerte > 255 (vel max)?
+        brlo subo_fuerte_vel_izquierda ;salta si la suma es menor
+
   cpi VEL_MOTOR_IZQ, VEL_MAX
-  brne inc_vel_izq_s
+        brsh fijo_vel_izquierda
   ret
-  
-  inc_vel_izq_s:
+
+  subo_fuerte_vel_izquierda:
+    add VEL_MOTOR_IZQ, VAR_FUERTE
+	ret
+
+  red_fuerte_vel_derecha:
+    cpi VEL_MOTOR_DER, VAR_FUERTE_VALOR
+          brsh decre_fuerte_vel_mot_der       ;si la vel der es mayor a la var suave, puedo decrementar su valor
+    cpi VEL_MOTOR_DER, VAR_FUERTE_VALOR
+          brlo fijo_vel_mot_der_f
+    ret
+
+   fijo_vel_izquierda:
+     ldi VEL_MOTOR_IZQ, VEL_MAX
+   ret
+
+   fijo_vel_mot_der_f:
+     ldi VEL_MOTOR_DER, 0x00 
+   ret
+
+   decre_fuerte_vel_mot_der:
+     sub VEL_MOTOR_DER,VAR_FUERTE
+   ret
+
+doblar_der_suave:
+
+  mov VEL_MOTOR_IZQ_AUX,VEL_MOTOR_IZQ
+
+  cpi VEL_MOTOR_IZQ, VEL_MAX ; 1° veo si VEL_MOTOR_IZQ = 255
+        breq red_suave_vel_derecha ;si VEL_MOTOR_IZQ = 255 debo reducir la vel_motor_der
+
+  add VEL_MOTOR_IZQ_AUX, VAR_SUAVE
+  cpi VEL_MOTOR_IZQ_AUX, VEL_MAX ; ¿vel_motor_izq = vel_motor_izq + var_fuerte > 255 (vel max)?
+        brlo subo_suave_vel_izquierda ;salta si la suma es menor
+
+  cpi VEL_MOTOR_IZQ, VEL_MAX
+        brsh fijo_vel_izquierda
+  ret
+
+  subo_suave_vel_izquierda:
     add VEL_MOTOR_IZQ, VAR_SUAVE
   ret
-  
-  fijo_vel_izq_s: ;subo la vel del mot izquierdo
-    ldi VEL_MOTOR_IZQ, VEL_MAX
-    sub VEL_MOTOR_IZQ_AUX, VAR_SUAVE
-		cpi VEL_MOTOR_DER, 5
-		brsh dec_vel_mot_der_s ;si la vel izq es mayor a la var suave, puedo decrementar su valor
-		cpi VEL_MOTOR_DER, 5
-		brlo fijo_vel_mot_der_s
-		ret
-  fijo_vel_mot_der_s:
-    ldi VEL_MOTOR_DER, 0x00 
-		ret
-  dec_vel_mot_der_s:
-    sub VEL_MOTOR_DER, VAR_SUAVE
-                    ret
+
+  red_suave_vel_derecha:
+    cpi VEL_MOTOR_DER, VAR_SUAVE_VALOR
+          brsh decre_suave_vel_mot_der        ;si la vel der es mayor a la var suave, puedo decrementar su valor
+    cpi VEL_MOTOR_DER, VAR_SUAVE_VALOR
+          brlo fijo_vel_mot_der_f
+    ret
+
+   decre_suave_vel_mot_der:
+     sub VEL_MOTOR_DER,VAR_SUAVE
+   ret  
 
 
 
