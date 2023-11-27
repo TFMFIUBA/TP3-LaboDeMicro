@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\PruebaMotores\PruebaMotores\main.asm Mon Nov 27 17:40:51 2023
+AVRASM ver. 2.2.8  C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm Mon Nov 27 18:32:49 2023
 
 
 EQU  SIGNATURE_000 0000001e
@@ -695,7 +695,47 @@ EQU  ACIaddr      0000002e
 EQU  TWIaddr      00000030
 EQU  SPMRaddr     00000032
 EQU  INT_VECTORS_SIZE 00000034
+EQU  VAR_SUAVE_VALOR 00000028
+EQU  VAR_FUERTE_VALOR 00000064
+EQU  VEL_MAX      00000050
+EQU  VEL_MAX_EXTREMOS 000000ff
+EQU  VAL_IZQ_2    00000000
+EQU  VAL_IZQ_1    00000001
+EQU  VAL_CENTRO   00000002
+EQU  VAL_DER_1    00000003
+EQU  VAL_DER_2    00000004
+EQU  BLANCO       00000001
+EQU  NEGRO        00000000
+DEF  VEL_MOTOR_DER r19
+DEF  VEL_MOTOR_IZQ r20
+DEF  VEL_MOTOR_DER_AUX r21
+DEF  VEL_MOTOR_IZQ_AUX r22
+DEF  VAR_SUAVE    r16
+DEF  VAR_FUERTE   r17
+DEF  VAL_LEIDO    r18
 CSEG main         00000034
-CSEG configPuertos 00000047
-CSEG configPWM    0000004a
-CSEG loop         00000046
+CSEG config_puertos 000000a6
+CSEG configPWM    000000af
+CSEG wait         0000003e
+CSEG actualizarVelocidad 00000097
+CSEG loop         00000044
+CSEG sigo_centro  00000057
+CSEG doblar_izq_fuerte 0000005c
+CSEG doblar_izq_suave 00000061
+CSEG doblar_der_fuerte 00000075
+CSEG doblar_der_suave 0000007a
+CSEG apagarLed    000000c3
+CSEG encenderLed  000000c1
+CSEG red_suave_vel_izquierda 0000006e
+CSEG subo_suave_vel_derecha 0000006c
+CSEG mot_der_vel_max 00000094
+CSEG decre_suave_vel_mot_izq 00000073
+CSEG mot_izq_vel_nula 0000008e
+CSEG red_suave_vel_derecha 00000087
+CSEG subo_suave_vel_izquierda 00000085
+CSEG mot_izq_vel_max 00000092
+CSEG decre_suave_vel_mot_der 0000008c
+CSEG mot_der_vel_nula 00000090
+CSEG detectar_lineas 00000096
+CSEG delay_inicial 0000009c
+CSEG L1           0000009f

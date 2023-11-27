@@ -28,10 +28,10 @@ main:
   call configPWM
 
   ldI r17, 0X00
-  ldi	r16, 0x7f
+  ldi	r16, 0x80
   
   sts	OCR1BH, r17
-  sts	OCR1BL, r16
+  sts	OCR1BL, r17
     
   sts	OCR1AH, r17
   sts	OCR1AL, r16

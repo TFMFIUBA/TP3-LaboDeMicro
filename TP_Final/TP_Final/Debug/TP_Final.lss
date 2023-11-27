@@ -1,12 +1,12 @@
 
-AVRASM ver. 2.2.8  C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\PruebaMotores\PruebaMotores\main.asm Mon Nov 27 17:40:51 2023
+AVRASM ver. 2.2.8  C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm Mon Nov 27 18:32:49 2023
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc'
-C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\PruebaMotores\PruebaMotores\main.asm(10): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328pdef.inc'
+C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm(1): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328pdef.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc'
-C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\PruebaMotores\PruebaMotores\main.asm(10): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328pdef.inc'
+C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm(1): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328pdef.inc'
                                  
-                                 ;
+                                 .include "m328pdef.inc"
                                  
                                  ;***** Created: 2011-02-09 12:03 ******* Source: ATmega328P.xml **********
                                  ;*************************************************************************
@@ -987,15 +987,6 @@ C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\PruebaMot
                                  
                                  ; ***** END OF FILE ******************************************************
                                  
-                                 ; ParteB.asm
-                                 ;
-                                 ; Created: 02/11/2023 0:07:09
-                                 ; Author : tomas
-                                 ;
-                                 
-                                 
-                                 
-                                 .include "m328pdef.inc"
                                  
                                  ;***** Created: 2011-02-09 12:03 ******* Source: ATmega328P.xml **********
                                  ;*************************************************************************
@@ -1040,51 +1031,306 @@ C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\PruebaMot
                                  
                                  ; ***** END OF FILE ******************************************************
                                  
+                                 .equ VAR_SUAVE_VALOR = 40
+                                 .equ VAR_FUERTE_VALOR = 100
+                                 .equ VEL_MAX = 80
+                                 .equ VEL_MAX_EXTREMOS = 255
+                                 
+                                 .equ VAL_IZQ_2 = PC0 //0x01  ; 0 0 0 0 0 0 0 1 
+                                 .equ VAL_IZQ_1 = PC1 //0x02  ; 0 0 0 0 0 0 1 0   
+                                 .equ VAL_CENTRO = PC2 //0x04 ; 0 0 0 0 0 1 0 0
+                                 .equ VAL_DER_1 = PC3 //0x08  ; 0 0 0 0 1 0 0 0 
+                                 .equ VAL_DER_2 = PC4 //0x10  ; 0 0 0 1 0 0 0 0  
+                                 
+                                 .equ BLANCO = 1
+                                 .equ NEGRO = 0
+                                 
+                                 .def VEL_MOTOR_DER = r19
+                                 .def VEL_MOTOR_IZQ = r20
+                                 .def VEL_MOTOR_DER_AUX = r21
+                                 .def VEL_MOTOR_IZQ_AUX = r22
+                                 .def VAR_SUAVE = r16   ;cuando el giro debe ser fuerte la vel sube en un 10%
+                                 .def VAR_FUERTE = r17  ;cuando el giro debe ser suave la vel sube en un 2%
+                                 .def VAL_LEIDO = r18
+                                 
                                  .cseg 
                                  .org 0x00
 000000 940c 0034                   jmp	main
                                  
-                                 
                                  .org INT_VECTORS_SIZE
                                  
                                  main:
-                                 			
-                                   ;Inicializo stack pointer
-000034 e008                        ldi r16, HIGH(RAMEND)
+                                 
+000034 e008                        ldi r16, HIGH(RAMEND) ;Se inicializa el stack pointer
 000035 bf0e                        out SPH, r16
 000036 ef0f                        ldi r16, LOW(RAMEND)
 000037 bf0d                        out SPL, r16
                                  
-000038 940e 0047                   call configPuertos
-00003a 940e 004a                   call configPWM
-                                 
-00003c e010                        ldI r17, 0X00
-00003d e800                        ldi	r16, 0x80
+000038 e208                        ldi VAR_SUAVE, VAR_SUAVE_VALOR
+000039 e614                        ldi VAR_FUERTE, VAR_FUERTE_VALOR
                                    
-00003e 9310 008b                   sts	OCR1BH, r17
-000040 9310 008a                   sts	OCR1BL, r17
-                                     
-000042 9310 0089                   sts	OCR1AH, r17
-000044 9300 0088                   sts	OCR1AL, r16
+00003a 940e 00a6                   call config_puertos
+00003c 940e 00af                   call configPWM
+                                 
+                                   wait:
+00003e 9918                          sbic PINB, PB0 ; Espera a que se pulse el botón
+00003f cffe                      		rjmp wait
+                                 
+                                   //call delay_inicial
+                                 
+                                   //call encenderLed
+000040 e530                        ldi VEL_MOTOR_DER, VEL_MAX
+000041 e540                        ldi VEL_MOTOR_IZQ, VEL_MAX
+000042 940e 0097                   call actualizarVelocidad 
+                                 
                                  
                                    loop:
-000046 cfff                        rjmp loop
+000044 b126                          in VAL_LEIDO, PINC    ;leo valores de los sensores y dependiendo de que leyeron giro o sigo en linea recta
+                                 	
+000045 9932                          sbic PINC, VAL_CENTRO
+000046 940e 0057                     call sigo_centro
                                  
+000048 9930                          sbic PINC, VAL_IZQ_2
+000049 940e 005c                     call doblar_izq_fuerte
                                  
+00004b 9931                          sbic PINC, VAL_IZQ_1
+00004c 940e 0061                     call doblar_izq_suave
                                  
-                                 configPuertos:
-000047 e006                        ldi	r16, (1 << PB2) | (1 << PB1)
-000048 b904                        out	DDRB, r16
-000049 9508                      ret
+00004e 9934                          sbic PINC, VAL_DER_2
+00004f 940e 0075                     call doblar_der_fuerte
+                                 
+000051 9933                          sbic PINC, VAL_DER_1
+000052 940e 007a                     call doblar_der_suave
+                                 	
+000054 940e 0097                     call actualizarVelocidad 
+                                 
+000056 cfed                        rjmp loop
+                                 
+                                 sigo_centro: ;voy a toda vel 
+000057 940e 00c3                   call apagarLed
+000059 e530                        ldi VEL_MOTOR_DER, VEL_MAX
+00005a e540                        ldi VEL_MOTOR_IZQ, VEL_MAX
+00005b 9508                      ret
+                                 
+                                 doblar_izq_fuerte:
+00005c 940e 00c1                   call encenderLed
+00005e ef3f                        ldi VEL_MOTOR_DER, VEL_MAX_EXTREMOS
+00005f e040                        ldi VEL_MOTOR_IZQ, 0 
+                                 /*
+                                   mov VEL_MOTOR_DER_AUX,VEL_MOTOR_DER
+                                 
+                                   cpi VEL_MOTOR_DER, VEL_MAX ; 1° veo si VEL_MOTOR_DER = 255
+                                         breq red_fuerte_vel_izquierda ;si VEL_MOTOR_DER = 255 debo reducir la vel_motor_izq
+                                 
+                                   add VEL_MOTOR_DER_AUX, VAR_FUERTE
+                                   cpi VEL_MOTOR_DER_AUX, VEL_MAX ; ¿vel_motor_der = vel_motor_der + var_fuerte > 255 (vel max)?
+                                         brlo subo_fuerte_vel_derecha ;salta si la suma es menor
+                                 
+                                   cpi VEL_MOTOR_DER, VEL_MAX
+                                         brsh mot_der_vel_max
+                                    ret
+                                 
+                                   subo_fuerte_vel_derecha:
+                                     add VEL_MOTOR_DER, VAR_FUERTE
+                                 	ret
+                                 
+                                   red_fuerte_vel_izquierda:
+                                     cpi VEL_MOTOR_IZQ, VAR_FUERTE_VALOR
+                                           brsh decre_fuerte_vel_mot_izq        ;si la vel izq es mayor a la var suave, puedo decrementar su valor
+                                     cpi VEL_MOTOR_IZQ, VAR_FUERTE_VALOR
+                                           brlo mot_izq_vel_nula
+                                     ret
+                                 
+                                    decre_fuerte_vel_mot_izq:
+                                      sub VEL_MOTOR_IZQ,VAR_FUERTE
+                                   */
+000060 9508                      ret             
+                                 
+                                 doblar_izq_suave:
+000061 940e 00c3                   call apagarLed
+                                 /*  ldi VEL_MOTOR_DER, VEL_MAX
+                                   ldi VEL_MOTOR_IZQ, 0 
+                                   */
+000063 2f53                        mov VEL_MOTOR_DER_AUX,VEL_MOTOR_DER
+                                 
+000064 3530                        cpi VEL_MOTOR_DER, VEL_MAX ; 1° veo si VEL_MOTOR_DER = 255
+000065 f041                              breq  red_suave_vel_izquierda;si VEL_MOTOR_DER = 255 debo reducir la vel_motor_izq
+                                 
+000066 0f50                        add VEL_MOTOR_DER_AUX, VAR_SUAVE
+000067 3550                        cpi VEL_MOTOR_DER_AUX, VEL_MAX ; ¿vel_motor_der = vel_motor_der + var_fuerte > 255 (vel max)?
+000068 f018                              brlo subo_suave_vel_derecha ;salta si la suma es menor
+                                 
+000069 3530                        cpi VEL_MOTOR_DER, VEL_MAX
+00006a f548                              brsh mot_der_vel_max
+00006b 9508                        ret
+                                 
+                                   subo_suave_vel_derecha:
+00006c 0f30                          add VEL_MOTOR_DER, VAR_SUAVE
+00006d 9508                      	ret
+                                 
+                                   red_suave_vel_izquierda:
+00006e 3248                          cpi VEL_MOTOR_IZQ, VAR_SUAVE_VALOR
+00006f f418                                brsh decre_suave_vel_mot_izq        ;si la vel izq es mayor a la var suave, puedo decrementar su valor
+000070 3248                          cpi VEL_MOTOR_IZQ, VAR_SUAVE_VALOR
+000071 f0e0                                brlo mot_izq_vel_nula
+000072 9508                          ret
+                                 
+                                    decre_suave_vel_mot_izq:
+000073 1b40                           sub VEL_MOTOR_IZQ,VAR_SUAVE
+                                 
+000074 9508                      ret             
+                                 			          
+                                 doblar_der_fuerte:
+000075 940e 00c1                   call encenderLed
+000077 e030                        ldi VEL_MOTOR_DER, 0
+000078 ef4f                        ldi VEL_MOTOR_IZQ, VEL_MAX_EXTREMOS
+                                 /*
+                                   mov VEL_MOTOR_IZQ_AUX,VEL_MOTOR_IZQ
+                                 
+                                   cpi VEL_MOTOR_IZQ, VEL_MAX ; 1° veo si VEL_MOTOR_IZQ = 255
+                                         breq red_fuerte_vel_derecha ;si VEL_MOTOR_IZQ = 255 debo reducir la vel_motor_der
+                                 
+                                   add VEL_MOTOR_IZQ_AUX, VAR_FUERTE
+                                   cpi VEL_MOTOR_IZQ_AUX, VEL_MAX ; ¿vel_motor_izq = vel_motor_izq + var_fuerte > 255 (vel max)?
+                                         brlo subo_fuerte_vel_izquierda ;salta si la suma es menor
+                                 
+                                   cpi VEL_MOTOR_IZQ, VEL_MAX
+                                         brsh mot_izq_vel_max
+                                   ret
+                                 
+                                   subo_fuerte_vel_izquierda:
+                                     add VEL_MOTOR_IZQ, VAR_FUERTE
+                                 	ret
+                                 
+                                   red_fuerte_vel_derecha:
+                                     cpi VEL_MOTOR_DER, VAR_FUERTE_VALOR
+                                           brsh decre_fuerte_vel_mot_der       ;si la vel der es mayor a la var suave, puedo decrementar su valor
+                                     cpi VEL_MOTOR_DER, VAR_FUERTE_VALOR
+                                           brlo mot_der_vel_nula
+                                     ret
+                                 
+                                    decre_fuerte_vel_mot_der:
+                                      sub VEL_MOTOR_DER,VAR_FUERTE
+                                 */
+000079 9508                      ret
+                                 
+                                 doblar_der_suave:
+00007a 940e 00c3                   call apagarLed
+                                 /*
+                                   ldi VEL_MOTOR_DER, 0
+                                   ldi VEL_MOTOR_IZQ, VEL_MAX
+                                   */
+00007c 2f64                        mov VEL_MOTOR_IZQ_AUX,VEL_MOTOR_IZQ
+                                 
+00007d 3540                        cpi VEL_MOTOR_IZQ, VEL_MAX ; 1° veo si VEL_MOTOR_IZQ = 255
+00007e f041                              breq red_suave_vel_derecha ;si VEL_MOTOR_IZQ = 255 debo reducir la vel_motor_der
+                                 
+00007f 0f60                        add VEL_MOTOR_IZQ_AUX, VAR_SUAVE
+000080 3560                        cpi VEL_MOTOR_IZQ_AUX, VEL_MAX ; ¿vel_motor_izq = vel_motor_izq + var_fuerte > 255 (vel max)?
+000081 f018                              brlo subo_suave_vel_izquierda ;salta si la suma es menor
+                                 
+000082 3540                        cpi VEL_MOTOR_IZQ, VEL_MAX
+000083 f470                              brsh mot_izq_vel_max
+000084 9508                        ret
+                                 
+                                   subo_suave_vel_izquierda:
+000085 0f40                          add VEL_MOTOR_IZQ, VAR_SUAVE
+000086 9508                        ret
+                                 
+                                   red_suave_vel_derecha:
+000087 3238                          cpi VEL_MOTOR_DER, VAR_SUAVE_VALOR
+000088 f418                                brsh decre_suave_vel_mot_der        ;si la vel der es mayor a la var suave, puedo decrementar su valor
+000089 3238                          cpi VEL_MOTOR_DER, VAR_SUAVE_VALOR
+00008a f028                                brlo mot_der_vel_nula
+00008b 9508                          ret
+                                 
+                                    decre_suave_vel_mot_der:
+00008c 1b30                           sub VEL_MOTOR_DER,VAR_SUAVE
+                                 
+00008d 9508                      ret  
+                                 
+                                 mot_izq_vel_nula:
+00008e e040                           ldi VEL_MOTOR_IZQ, 0x00 
+00008f 9508                         ret
+                                 
+                                 mot_der_vel_nula:
+000090 e030                           ldi VEL_MOTOR_DER, 0x00      
+000091 9508                         ret
+                                 
+                                 mot_izq_vel_max:
+000092 e540                           ldi VEL_MOTOR_IZQ, VEL_MAX
+000093 9508                      ret
+                                 
+                                 mot_der_vel_max:
+000094 e530                           ldi VEL_MOTOR_DER, VEL_MAX
+000095 9508                         ret
+                                 
+                                 detectar_lineas: ;si sucede que val_centro = 0 ---> la pista es blanca con raya negra
+                                                  ;si sucede que val_centro = 1 ---> la pista es negra con raya blanca
+                                 				 ;USAR REG COMO FLAGS 
+000096 9508                                      ret
+                                 
+                                 actualizarVelocidad:
+000097 9330 008a                   sts	OCR1BL, VEL_MOTOR_DER
+000099 9340 0088                   sts	OCR1AL, VEL_MOTOR_IZQ
+00009b 9508                      ret
+                                 
+                                 delay_inicial:  ;cinco seg 
+00009c ef2a                        ldi r18, 0xFA
+00009d ef3a                        ldi r19, 0xFA
+00009e e94e                        ldi r20, 0x9E
+                                   L1: 
+00009f 954a                        dec r20
+0000a0 f7f1                        brne L1
+0000a1 953a                        dec r19
+0000a2 f7e1                        brne L1
+0000a3 952a                        dec r18
+0000a4 f7d1                        brne L1
+0000a5 9508                      ret
+                                 
+                                 config_puertos:
+0000a6 930f                        push r16
+                                 
+0000a7 e000                        ldi r16, 0x00
+0000a8 b907                        out DDRC,r16
+                                               
+0000a9 e006                        ldi r16, (0 << PB0) | (1 << PB1) | (1 << PB2)
+0000aa b904                        out DDRB,r16
+                                 
+                                               
+0000ab e800                        ldi r16,(1 << PD7)
+0000ac b90a                        out DDRD,r16 ; 1 led conectado a PD7
+                                 
+0000ad 910f                        pop r16
+0000ae 9508                      ret
                                  
                                  
                                  configPWM:
-00004a ea01                        ldi	r16, (0 << WGM11) | (1 << WGM10) | (1 << COM1A1) | (0 << COM1A0) | (1 << COM1B1) | (0 << COM1B0)
-00004b 9300 0080                   sts	TCCR1A, r16
+0000af 930f                        push r16
                                  
-00004d e004                        ldi	r16, (0 << WGM13) | (0 << WGM12) | (1 << CS12) | (0 << CS11) | (0 << CS10)
-00004e 9300 0081                   sts	TCCR1B, r16
+0000b0 ea01                        ldi	r16, (0 << WGM11) | (1 << WGM10) | (1 << COM1A1) | (0 << COM1A0) | (1 << COM1B1) | (0 << COM1B0)
+0000b1 9300 0080                   sts	TCCR1A, r16
                                  
+0000b3 e004                        ldi	r16, (0 << WGM13) | (0 << WGM12) | (1 << CS12) | (0 << CS11) | (0 << CS10)
+0000b4 9300 0081                   sts	TCCR1B, r16
+                                 
+0000b6 e000                        ldI r16, 0X00
+                                   
+0000b7 9300 008b                   sts	OCR1BH, r16
+0000b9 9300 008a                   sts	OCR1BL, r16
+                                     
+0000bb 9300 0089                   sts	OCR1AH, r16
+0000bd 9300 0088                   sts	OCR1AL, r16
+                                 
+0000bf 910f                        pop r16
+0000c0 9508                      ret
+                                 
+                                 encenderLed:
+0000c1 9a5f                        sbi PORTD, PD7
+0000c2 9508                      ret
+                                 
+                                 apagarLed:
+0000c3 985f                        cbi PORTD, PD7
 
 
 RESOURCE USE INFORMATION
@@ -1104,37 +1350,37 @@ counted separately from r26..r31 here.
 "ATmega328P" register use summary:
 x  :   0 y  :   0 z  :   0 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
-r13:   0 r14:   0 r15:   0 r16:  12 r17:   4 r18:   0 r19:   0 r20:   0 
-r21:   0 r22:   0 r23:   0 r24:   0 r25:   0 r26:   0 r27:   0 r28:   0 
+r13:   0 r14:   0 r15:   0 r16:  30 r17:   1 r18:   3 r19:  16 r20:  16 
+r21:   3 r22:   3 r23:   0 r24:   0 r25:   0 r26:   0 r27:   0 r28:   0 
 r29:   0 r30:   0 r31:   0 
-Registers used: 2 out of 35 (5.7%)
+Registers used: 7 out of 35 (20.0%)
 
 "ATmega328P" instruction use summary:
-.lds  :   0 .sts  :   0 adc   :   0 add   :   0 adiw  :   0 and   :   0 
+.lds  :   0 .sts  :   0 adc   :   0 add   :   4 adiw  :   0 and   :   0 
 andi  :   0 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
-brcc  :   0 brcs  :   0 break :   0 breq  :   0 brge  :   0 brhc  :   0 
-brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
-brne  :   0 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
-brvs  :   0 bset  :   0 bst   :   0 call  :   2 cbi   :   0 cbr   :   0 
+brcc  :   0 brcs  :   0 break :   0 breq  :   2 brge  :   0 brhc  :   0 
+brhs  :   0 brid  :   0 brie  :   0 brlo  :   4 brlt  :   0 brmi  :   0 
+brne  :   3 brpl  :   0 brsh  :   4 brtc  :   0 brts  :   0 brvc  :   0 
+brvs  :   0 bset  :   0 bst   :   0 call  :  14 cbi   :   1 cbr   :   0 
 clc   :   0 clh   :   0 cli   :   0 cln   :   0 clr   :   0 cls   :   0 
 clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   0 cpc   :   0 
-cpi   :   0 cpse  :   0 dec   :   0 eor   :   0 fmul  :   0 fmuls :   0 
-fmulsu:   0 icall :   0 ijmp  :   0 in    :   0 inc   :   0 jmp   :   1 
-ld    :   0 ldd   :   0 ldi   :   7 lds   :   0 lpm   :   0 lsl   :   0 
-lsr   :   0 mov   :   0 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
-neg   :   0 nop   :   0 or    :   0 ori   :   0 out   :   3 pop   :   0 
-push  :   0 rcall :   0 ret   :   2 reti  :   0 rjmp  :   1 rol   :   0 
-ror   :   0 sbc   :   0 sbci  :   0 sbi   :   0 sbic  :   0 sbis  :   0 
+cpi   :  10 cpse  :   0 dec   :   3 eor   :   0 fmul  :   0 fmuls :   0 
+fmulsu:   0 icall :   0 ijmp  :   0 in    :   1 inc   :   0 jmp   :   1 
+ld    :   0 ldd   :   0 ldi   :  25 lds   :   0 lpm   :   0 lsl   :   0 
+lsr   :   0 mov   :   2 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
+neg   :   0 nop   :   0 or    :   0 ori   :   0 out   :   5 pop   :   2 
+push  :   2 rcall :   0 ret   :  22 reti  :   0 rjmp  :   2 rol   :   0 
+ror   :   0 sbc   :   0 sbci  :   0 sbi   :   1 sbic  :   6 sbis  :   0 
 sbiw  :   0 sbr   :   0 sbrc  :   0 sbrs  :   0 sec   :   0 seh   :   0 
 sei   :   0 sen   :   0 ser   :   0 ses   :   0 set   :   0 sev   :   0 
-sez   :   0 sleep :   0 spm   :   0 st    :   0 std   :   0 sts   :   6 
-sub   :   0 subi  :   0 swap  :   0 tst   :   0 wdr   :   0 
-Instructions used: 7 out of 113 (6.2%)
+sez   :   0 sleep :   0 spm   :   0 st    :   0 std   :   0 sts   :   8 
+sub   :   2 subi  :   0 swap  :   0 tst   :   0 wdr   :   0 
+Instructions used: 22 out of 113 (19.5%)
 
 "ATmega328P" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x0000a2     62      0     62   32768   0.2%
+[.cseg] 0x000000 0x00018a    294      0    294   32768   0.9%
 [.dseg] 0x000100 0x000100      0      0      0    2048   0.0%
 [.eseg] 0x000000 0x000000      0      0      0    1024   0.0%
 
