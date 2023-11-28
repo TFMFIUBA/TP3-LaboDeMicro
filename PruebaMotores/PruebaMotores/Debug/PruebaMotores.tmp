@@ -24,8 +24,8 @@
  </OUTPUT_FILES>
  <LABELS>
   <main><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\PruebaMotores\PruebaMotores\main.asm</FILE><LINE>19</LINE></main>
-  <configPuertos><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\PruebaMotores\PruebaMotores\main.asm</FILE><LINE>44</LINE></configPuertos>
-  <configPWM><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\PruebaMotores\PruebaMotores\main.asm</FILE><LINE>50</LINE></configPWM>
-  <loop><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\PruebaMotores\PruebaMotores\main.asm</FILE><LINE>39</LINE></loop>
+  <configPuertos><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\PruebaMotores\PruebaMotores\main.asm</FILE><LINE>45</LINE></configPuertos>
+  <configPWM><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\PruebaMotores\PruebaMotores\main.asm</FILE><LINE>62</LINE></configPWM>
+  <loop><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\PruebaMotores\PruebaMotores\main.asm</FILE><LINE>40</LINE></loop>
  </LABELS>
 </ASSEMBLER_INFO>

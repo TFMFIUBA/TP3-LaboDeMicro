@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm Mon Nov 27 18:32:49 2023
+AVRASM ver. 2.2.8  C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm Tue Nov 28 17:16:49 2023
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc'
 C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm(1): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328pdef.inc'
@@ -1070,7 +1070,7 @@ C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\
 000039 e614                        ldi VAR_FUERTE, VAR_FUERTE_VALOR
                                    
 00003a 940e 00a6                   call config_puertos
-00003c 940e 00af                   call configPWM
+00003c 940e 00b1                   call configPWM
                                  
                                    wait:
 00003e 9918                          sbic PINB, PB0 ; Espera a que se pulse el botón
@@ -1107,13 +1107,13 @@ C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\
 000056 cfed                        rjmp loop
                                  
                                  sigo_centro: ;voy a toda vel 
-000057 940e 00c3                   call apagarLed
+000057 940e 00c5                   call apagarLed
 000059 e530                        ldi VEL_MOTOR_DER, VEL_MAX
 00005a e540                        ldi VEL_MOTOR_IZQ, VEL_MAX
 00005b 9508                      ret
                                  
                                  doblar_izq_fuerte:
-00005c 940e 00c1                   call encenderLed
+00005c 940e 00c3                   call encenderLed
 00005e ef3f                        ldi VEL_MOTOR_DER, VEL_MAX_EXTREMOS
 00005f e040                        ldi VEL_MOTOR_IZQ, 0 
                                  /*
@@ -1147,7 +1147,7 @@ C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\
 000060 9508                      ret             
                                  
                                  doblar_izq_suave:
-000061 940e 00c3                   call apagarLed
+000061 940e 00c5                   call apagarLed
                                  /*  ldi VEL_MOTOR_DER, VEL_MAX
                                    ldi VEL_MOTOR_IZQ, 0 
                                    */
@@ -1181,7 +1181,7 @@ C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\
 000074 9508                      ret             
                                  			          
                                  doblar_der_fuerte:
-000075 940e 00c1                   call encenderLed
+000075 940e 00c3                   call encenderLed
 000077 e030                        ldi VEL_MOTOR_DER, 0
 000078 ef4f                        ldi VEL_MOTOR_IZQ, VEL_MAX_EXTREMOS
                                  /*
@@ -1215,7 +1215,7 @@ C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\
 000079 9508                      ret
                                  
                                  doblar_der_suave:
-00007a 940e 00c3                   call apagarLed
+00007a 940e 00c5                   call apagarLed
                                  /*
                                    ldi VEL_MOTOR_DER, 0
                                    ldi VEL_MOTOR_IZQ, VEL_MAX
@@ -1298,39 +1298,43 @@ C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\
 0000aa b904                        out DDRB,r16
                                  
                                                
-0000ab e800                        ldi r16,(1 << PD7)
+0000ab ee00                        ldi r16,(1 << PD7) | (1 << PD5) | (1 << PD6)
 0000ac b90a                        out DDRD,r16 ; 1 led conectado a PD7
+                                   
+0000ad 985d                        cbi PORTD, PD5 //Sacar para usar reversa
+0000ae 985e                        cbi PORTD, PD6
                                  
-0000ad 910f                        pop r16
-0000ae 9508                      ret
+0000af 910f                        pop r16
+0000b0 9508                      ret
                                  
                                  
                                  configPWM:
-0000af 930f                        push r16
+0000b1 930f                        push r16
                                  
-0000b0 ea01                        ldi	r16, (0 << WGM11) | (1 << WGM10) | (1 << COM1A1) | (0 << COM1A0) | (1 << COM1B1) | (0 << COM1B0)
-0000b1 9300 0080                   sts	TCCR1A, r16
+                                   ;Configuración timer 1
+0000b2 ea01                        ldi	r16, (0 << WGM11) | (1 << WGM10) | (1 << COM0A1) | (0 << COM0A0) | (1 << COM0B1) | (0 << COM0B0)
+0000b3 9300 0080                   sts	TCCR1A, r16
                                  
-0000b3 e004                        ldi	r16, (0 << WGM13) | (0 << WGM12) | (1 << CS12) | (0 << CS11) | (0 << CS10)
-0000b4 9300 0081                   sts	TCCR1B, r16
+0000b5 e004                        ldi	r16, (0 << WGM13) | (0 << WGM12) | (1 << CS12) | (0 << CS11) | (0 << CS10)
+0000b6 9300 0081                   sts	TCCR1B, r16
                                  
-0000b6 e000                        ldI r16, 0X00
+0000b8 e000                        ldI r16, 0X00
                                    
-0000b7 9300 008b                   sts	OCR1BH, r16
-0000b9 9300 008a                   sts	OCR1BL, r16
+0000b9 9300 008b                   sts	OCR1BH, r16
+0000bb 9300 008a                   sts	OCR1BL, r16
                                      
-0000bb 9300 0089                   sts	OCR1AH, r16
-0000bd 9300 0088                   sts	OCR1AL, r16
+0000bd 9300 0089                   sts	OCR1AH, r16
+0000bf 9300 0088                   sts	OCR1AL, r16
                                  
-0000bf 910f                        pop r16
-0000c0 9508                      ret
-                                 
-                                 encenderLed:
-0000c1 9a5f                        sbi PORTD, PD7
+0000c1 910f                        pop r16
 0000c2 9508                      ret
                                  
+                                 encenderLed:
+0000c3 9a5f                        sbi PORTD, PD7
+0000c4 9508                      ret
+                                 
                                  apagarLed:
-0000c3 985f                        cbi PORTD, PD7
+0000c5 985f                        cbi PORTD, PD7
 
 
 RESOURCE USE INFORMATION
@@ -1361,7 +1365,7 @@ andi  :   0 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0
 brcc  :   0 brcs  :   0 break :   0 breq  :   2 brge  :   0 brhc  :   0 
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   4 brlt  :   0 brmi  :   0 
 brne  :   3 brpl  :   0 brsh  :   4 brtc  :   0 brts  :   0 brvc  :   0 
-brvs  :   0 bset  :   0 bst   :   0 call  :  14 cbi   :   1 cbr   :   0 
+brvs  :   0 bset  :   0 bst   :   0 call  :  14 cbi   :   3 cbr   :   0 
 clc   :   0 clh   :   0 cli   :   0 cln   :   0 clr   :   0 cls   :   0 
 clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   0 cpc   :   0 
 cpi   :  10 cpse  :   0 dec   :   3 eor   :   0 fmul  :   0 fmuls :   0 
@@ -1380,7 +1384,7 @@ Instructions used: 22 out of 113 (19.5%)
 "ATmega328P" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x00018a    294      0    294   32768   0.9%
+[.cseg] 0x000000 0x00018e    298      0    298   32768   0.9%
 [.dseg] 0x000100 0x000100      0      0      0    2048   0.0%
 [.eseg] 0x000000 0x000000      0      0      0    1024   0.0%
 

@@ -267,8 +267,11 @@ config_puertos:
   out DDRB,r16
 
               
-  ldi r16,(1 << PD7)
+  ldi r16,(1 << PD7) | (1 << PD5) | (1 << PD6)
   out DDRD,r16 ; 1 led conectado a PD7
+  
+  cbi PORTD, PD5 //Sacar para usar reversa
+  cbi PORTD, PD6
 
   pop r16
 ret
@@ -291,14 +294,6 @@ configPWM:
     
   sts	OCR1AH, r16
   sts	OCR1AL, r16
-
-  ;Configuración timer 0
-  ldi	r16, (0 << WGM11) | (1 << WGM10) | (1 << COM1A1) | (0 << COM1A0) | (1 << COM1B1) | (0 << COM1B0)
-  sts	TCCR0A, r16
-
-  ldi	r16, (0 << WGM13) | (0 << WGM12) | (1 << CS12) | (0 << CS11) | (0 << CS10)
-  sts	TCCR0B, r16
-
 
   pop r16
 ret

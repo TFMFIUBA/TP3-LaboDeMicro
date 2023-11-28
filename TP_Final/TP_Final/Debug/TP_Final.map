@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm Mon Nov 27 18:32:49 2023
+AVRASM ver. 2.2.8  C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm Tue Nov 28 17:16:49 2023
 
 
 EQU  SIGNATURE_000 0000001e
@@ -715,7 +715,7 @@ DEF  VAR_FUERTE   r17
 DEF  VAL_LEIDO    r18
 CSEG main         00000034
 CSEG config_puertos 000000a6
-CSEG configPWM    000000af
+CSEG configPWM    000000b1
 CSEG wait         0000003e
 CSEG actualizarVelocidad 00000097
 CSEG loop         00000044
@@ -724,8 +724,8 @@ CSEG doblar_izq_fuerte 0000005c
 CSEG doblar_izq_suave 00000061
 CSEG doblar_der_fuerte 00000075
 CSEG doblar_der_suave 0000007a
-CSEG apagarLed    000000c3
-CSEG encenderLed  000000c1
+CSEG apagarLed    000000c5
+CSEG encenderLed  000000c3
 CSEG red_suave_vel_izquierda 0000006e
 CSEG subo_suave_vel_derecha 0000006c
 CSEG mot_der_vel_max 00000094
