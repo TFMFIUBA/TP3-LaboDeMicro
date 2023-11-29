@@ -56,21 +56,21 @@ main:
   loop:
     in VAL_LEIDO, PINC    ;leo valores de los sensores y dependiendo de que leyeron giro o sigo en linea recta
 	
-    sbic PINC, VAL_CENTRO
-    call sigo_centro
-
     sbic PINC, VAL_IZQ_2
     call doblar_izq_fuerte
-
-    sbic PINC, VAL_IZQ_1
-    call doblar_izq_suave
 
     sbic PINC, VAL_DER_2
     call doblar_der_fuerte
 
+    sbic PINC, VAL_IZQ_1
+    call doblar_izq_suave
+
     sbic PINC, VAL_DER_1
     call doblar_der_suave
 	
+    sbic PINC, VAL_CENTRO
+    call sigo_centro
+
     call actualizarVelocidad 
 
   rjmp loop
