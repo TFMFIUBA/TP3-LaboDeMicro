@@ -1,9 +1,9 @@
 .include "m328pdef.inc"
 
-.equ VAR_SUAVE_VALOR = 10
+.equ VAR_SUAVE_VALOR = 40
 .equ VAR_FUERTE_VALOR = 100
-.equ VEL_MAX = 60
-.equ VEL_MAX_EXTREMOS = 60
+.equ VEL_MAX = 80
+.equ VEL_MAX_EXTREMOS = 255
 
 .equ VAL_IZQ_2 = PC0 //0x01  ; 0 0 0 0 0 0 0 1 
 .equ VAL_IZQ_1 = PC1 //0x02  ; 0 0 0 0 0 0 1 0   
@@ -25,8 +25,6 @@
 .cseg 
 .org 0x00
   jmp	main
-.org 0x0008
-	rjmp Interruptlectura
 
 .org INT_VECTORS_SIZE
 
@@ -42,7 +40,6 @@ main:
   
   call config_puertos
   call configPWM
-  call configInterrupts
 
   wait:
     sbic PINB, PB0 ; Espera a que se pulse el botón
@@ -53,41 +50,39 @@ main:
   //call encenderLed
   ldi VEL_MOTOR_DER, VEL_MAX
   ldi VEL_MOTOR_IZQ, VEL_MAX
-  call actualizarVelocidad
-  SEI 
+  call actualizarVelocidad 
+
 
   loop:
+    in VAL_LEIDO, PINC    ;leo valores de los sensores y dependiendo de que leyeron giro o sigo en linea recta
+	
+    sbic PINC, VAL_CENTRO
+    call sigo_centro
+
+    sbic PINC, VAL_IZQ_2
+    call doblar_izq_fuerte
+
+    sbic PINC, VAL_IZQ_1
+    call doblar_izq_suave
+
+    sbic PINC, VAL_DER_2
+    call doblar_der_fuerte
+
+    sbic PINC, VAL_DER_1
+    call doblar_der_suave
+	
+    call actualizarVelocidad 
+
   rjmp loop
 
-Interruptlectura:
-  in VAL_LEIDO, PINC    ;leo valores de los sensores y dependiendo de que leyeron giro o sigo en linea recta
-	
-  sbic PINC, VAL_IZQ_2
-  call doblar_izq_fuerte
-
-  sbic PINC, VAL_DER_2
-  call doblar_der_fuerte
-
-  sbic PINC, VAL_IZQ_1
-  call doblar_izq_suave
-
-  sbic PINC, VAL_DER_1
-  call doblar_der_suave
-	   
-  sbic PINC, VAL_CENTRO
-  call sigo_centro
-
-  call actualizarVelocidad 
-reti
-
 sigo_centro: ;voy a toda vel 
-  
+  call apagarLed
   ldi VEL_MOTOR_DER, VEL_MAX
   ldi VEL_MOTOR_IZQ, VEL_MAX
 ret
 
 doblar_izq_fuerte:
-  
+  call encenderLed
   ldi VEL_MOTOR_DER, VEL_MAX_EXTREMOS
   ldi VEL_MOTOR_IZQ, 0 
 /*
@@ -121,7 +116,7 @@ doblar_izq_fuerte:
 ret             
 
 doblar_izq_suave:
-  
+  call apagarLed
 /*  ldi VEL_MOTOR_DER, VEL_MAX
   ldi VEL_MOTOR_IZQ, 0 
   */
@@ -155,7 +150,7 @@ doblar_izq_suave:
 ret             
 			          
 doblar_der_fuerte:
-  
+  call encenderLed
   ldi VEL_MOTOR_DER, 0
   ldi VEL_MOTOR_IZQ, VEL_MAX_EXTREMOS
 /*
@@ -189,7 +184,7 @@ doblar_der_fuerte:
 ret
 
 doblar_der_suave:
-  
+  call apagarLed
 /*
   ldi VEL_MOTOR_DER, 0
   ldi VEL_MOTOR_IZQ, VEL_MAX
@@ -309,20 +304,4 @@ ret
 
 apagarLed:
   cbi PORTD, PD7
-ret
-
-configInterrupts:
-	push r16
-
-  ldi r16, 0x00
-  ldi r16, (1 << PCIE1)
-  sts PCICR, r16
-
-  ldi r16, 0x00
-  ldi r16, (1 << PCINT8) | (1 << PCINT9) | (1 << PCINT10) | (1 << PCINT11) | (1 << PCINT12) 
-  sts PCMSK1, r16
-
-	//SEI	;(Interrupciones generales activadas)
-
-  pop r16
 ret
