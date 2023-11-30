@@ -1,9 +1,10 @@
 .include "m328pdef.inc"
 
-.equ VAR_SUAVE_VALOR = 40
-.equ VAR_FUERTE_VALOR = 100
+.equ VAR_SUAVE_VALOR = 5
+.equ VAR_FUERTE_VALOR = 30 
 .equ VEL_MAX = 80
 .equ VEL_MAX_EXTREMOS = 255
+.equ VEL_REVERSA = 25
 
 .equ VAL_IZQ_2 = PC0 //0x01  ; 0 0 0 0 0 0 0 1 
 .equ VAL_IZQ_1 = PC1 //0x02  ; 0 0 0 0 0 0 1 0   
@@ -21,6 +22,8 @@
 .def VAR_SUAVE = r16   ;cuando el giro debe ser fuerte la vel sube en un 10%
 .def VAR_FUERTE = r17  ;cuando el giro debe ser suave la vel sube en un 2%
 .def VAL_LEIDO = r18
+.def VEL_MOTOR_REV_DER = R23
+.def VEL_MOTOR_REV_IZQ = R24
 
 .cseg 
 .org 0x00
@@ -79,13 +82,17 @@ sigo_centro: ;voy a toda vel
   call apagarLed
   ldi VEL_MOTOR_DER, VEL_MAX
   ldi VEL_MOTOR_IZQ, VEL_MAX
+  ldi VEL_MOTOR_REV_DER, 0X00
+  ldi VEL_MOTOR_REV_IZQ, 0X00
 ret
 
 doblar_izq_fuerte:
   call encenderLed
+  /*
   ldi VEL_MOTOR_DER, VEL_MAX_EXTREMOS
   ldi VEL_MOTOR_IZQ, 0 
-/*
+  ldi VEL_MOTOR_REV_IZQ, VEL_REVERSA
+*/
   mov VEL_MOTOR_DER_AUX,VEL_MOTOR_DER
 
   cpi VEL_MOTOR_DER, VEL_MAX ; 1° veo si VEL_MOTOR_DER = 255
@@ -112,7 +119,7 @@ doblar_izq_fuerte:
 
    decre_fuerte_vel_mot_izq:
      sub VEL_MOTOR_IZQ,VAR_FUERTE
-  */
+  
 ret             
 
 doblar_izq_suave:
@@ -120,6 +127,10 @@ doblar_izq_suave:
 /*  ldi VEL_MOTOR_DER, VEL_MAX
   ldi VEL_MOTOR_IZQ, 0 
   */
+
+  ldi VEL_MOTOR_REV_DER, 0X00
+  ldi VEL_MOTOR_REV_IZQ, 0X00
+
   mov VEL_MOTOR_DER_AUX,VEL_MOTOR_DER
 
   cpi VEL_MOTOR_DER, VEL_MAX ; 1° veo si VEL_MOTOR_DER = 255
@@ -148,12 +159,22 @@ doblar_izq_suave:
      sub VEL_MOTOR_IZQ,VAR_SUAVE
 
 ret             
-			          
+
+mot_izq_vel_nula:
+     ldi VEL_MOTOR_IZQ, 0x00
+     ldi VEL_MOTOR_REV_DER, VEL_REVERSA
+   ret
+
+mot_der_vel_max:
+     ldi VEL_MOTOR_DER, VEL_MAX
+   ret
+
 doblar_der_fuerte:
   call encenderLed
-  ldi VEL_MOTOR_DER, 0
+  /*ldi VEL_MOTOR_DER, 0
   ldi VEL_MOTOR_IZQ, VEL_MAX_EXTREMOS
-/*
+  ldi VEL_MOTOR_REV_DER, VEL_REVERSA
+*/
   mov VEL_MOTOR_IZQ_AUX,VEL_MOTOR_IZQ
 
   cpi VEL_MOTOR_IZQ, VEL_MAX ; 1° veo si VEL_MOTOR_IZQ = 255
@@ -180,7 +201,7 @@ doblar_der_fuerte:
 
    decre_fuerte_vel_mot_der:
      sub VEL_MOTOR_DER,VAR_FUERTE
-*/
+
 ret
 
 doblar_der_suave:
@@ -189,6 +210,10 @@ doblar_der_suave:
   ldi VEL_MOTOR_DER, 0
   ldi VEL_MOTOR_IZQ, VEL_MAX
   */
+
+  ldi VEL_MOTOR_REV_DER, 0X00
+  ldi VEL_MOTOR_REV_IZQ, 0X00
+
   mov VEL_MOTOR_IZQ_AUX,VEL_MOTOR_IZQ
 
   cpi VEL_MOTOR_IZQ, VEL_MAX ; 1° veo si VEL_MOTOR_IZQ = 255
@@ -218,21 +243,17 @@ doblar_der_suave:
 
 ret  
 
-mot_izq_vel_nula:
-     ldi VEL_MOTOR_IZQ, 0x00 
-   ret
 
 mot_der_vel_nula:
-     ldi VEL_MOTOR_DER, 0x00      
+     ldi VEL_MOTOR_DER, 0x00
+     ldi VEL_MOTOR_REV_IZQ, VEL_REVERSA     
    ret
 
 mot_izq_vel_max:
      ldi VEL_MOTOR_IZQ, VEL_MAX
 ret
 
-mot_der_vel_max:
-     ldi VEL_MOTOR_DER, VEL_MAX
-   ret
+
 
 detectar_lineas: ;si sucede que val_centro = 0 ---> la pista es blanca con raya negra
                  ;si sucede que val_centro = 1 ---> la pista es negra con raya blanca
@@ -242,6 +263,8 @@ detectar_lineas: ;si sucede que val_centro = 0 ---> la pista es blanca con raya 
 actualizarVelocidad:
   sts	OCR1BL, VEL_MOTOR_DER
   sts	OCR1AL, VEL_MOTOR_IZQ
+  out	OCR0B, VEL_MOTOR_REV_DER
+  out	OCR0A, VEL_MOTOR_REV_IZQ
 ret
 
 delay_inicial:  ;cinco seg 
@@ -294,6 +317,18 @@ configPWM:
     
   sts	OCR1AH, r16
   sts	OCR1AL, r16
+
+  ;Configuración timer 0
+  ldi	r16, (0 << WGM01) | (1 << WGM00) | (1 << COM0A1) | (0 << COM0A0) | (1 << COM0B1) | (0 << COM0B0)
+  out	TCCR0A, r16
+
+  ldi	r16, (0 << WGM02) | (1 << CS02) | (0 << CS01) | (0 << CS00)
+  out	TCCR0B, r16
+  
+  ldI r16, 0X00
+
+  out	OCR0B, r16
+  out	OCR0A, r16
 
   pop r16
 ret
