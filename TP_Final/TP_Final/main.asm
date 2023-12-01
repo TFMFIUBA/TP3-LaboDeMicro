@@ -114,11 +114,19 @@ doblar_izq_fuerte:
     cpi VEL_MOTOR_IZQ, VAR_FUERTE_VALOR
           brsh decre_fuerte_vel_mot_izq        ;si la vel izq es mayor a la var suave, puedo decrementar su valor
     cpi VEL_MOTOR_IZQ, VAR_FUERTE_VALOR
-          brlo mot_izq_vel_nula
+          brlo mot_izq_rev_der_max
     ret
 
-   decre_fuerte_vel_mot_izq:
-     sub VEL_MOTOR_IZQ,VAR_FUERTE
+  decre_fuerte_vel_mot_izq:
+     sub VEL_MOTOR_IZQ,VAR_FUERTE 
+  ret
+
+  mot_izq_rev_der_max:
+     ldi VEL_MOTOR_IZQ, 0x00
+     ldi VEL_MOTOR_REV_IZQ, VEL_REVERSA
+     ldi VEL_MOTOR_DER, VEL_MAX_EXTREMOS
+  ret
+
   
 ret             
 
@@ -128,8 +136,20 @@ doblar_izq_suave:
   ldi VEL_MOTOR_IZQ, 0 
   */
 
-  ldi VEL_MOTOR_REV_DER, 0X00
-  ldi VEL_MOTOR_REV_IZQ, 0X00
+  cpi VEL_MOTOR_IZQ, VEL_REVERSA
+  breq desactivar_giro_extremo_izq
+
+  rjmp fin_desactivar_giro_extremo_izq
+
+  desactivar_giro_extremo_izq:
+    ldi VEL_MOTOR_REV_IZQ, 0x00
+    ldi VEL_MOTOR_REV_DER, 0x00
+    
+    ldi VEL_MOTOR_IZQ, 0x00
+    ldi VEL_MOTOR_DER, VEL_MAX
+  ret
+
+  fin_desactivar_giro_extremo_izq:
 
   mov VEL_MOTOR_DER_AUX,VEL_MOTOR_DER
 
@@ -155,15 +175,15 @@ doblar_izq_suave:
           brlo mot_izq_vel_nula
     ret
 
-   decre_suave_vel_mot_izq:
-     sub VEL_MOTOR_IZQ,VAR_SUAVE
+  decre_suave_vel_mot_izq:
+     sub VEL_MOTOR_IZQ,VAR_SUAVE 
+  ret
+  
+  mot_izq_vel_nula:
+     ldi VEL_MOTOR_IZQ, 0x00
+  ret
 
 ret             
-
-mot_izq_vel_nula:
-     ldi VEL_MOTOR_IZQ, 0x00
-     ldi VEL_MOTOR_REV_DER, VEL_REVERSA
-   ret
 
 mot_der_vel_max:
      ldi VEL_MOTOR_DER, VEL_MAX
@@ -196,11 +216,18 @@ doblar_der_fuerte:
     cpi VEL_MOTOR_DER, VAR_FUERTE_VALOR
           brsh decre_fuerte_vel_mot_der       ;si la vel der es mayor a la var suave, puedo decrementar su valor
     cpi VEL_MOTOR_DER, VAR_FUERTE_VALOR
-          brlo mot_der_vel_nula
+          brlo mot_der_rev_izq_max
     ret
 
-   decre_fuerte_vel_mot_der:
-     sub VEL_MOTOR_DER,VAR_FUERTE
+  decre_fuerte_vel_mot_der:
+     sub VEL_MOTOR_DER,VAR_FUERTE 
+  ret
+
+  mot_der_rev_izq_max:
+     ldi VEL_MOTOR_DER, 0x00
+     ldi VEL_MOTOR_REV_DER, VEL_REVERSA
+     ldi VEL_MOTOR_IZQ, VEL_MAX_EXTREMOS
+   ret
 
 ret
 
@@ -211,8 +238,20 @@ doblar_der_suave:
   ldi VEL_MOTOR_IZQ, VEL_MAX
   */
 
-  ldi VEL_MOTOR_REV_DER, 0X00
-  ldi VEL_MOTOR_REV_IZQ, 0X00
+  cpi VEL_MOTOR_DER, VEL_REVERSA
+  breq desactivar_giro_extremo_der
+
+  rjmp fin_desactivar_giro_extremo_der
+
+  desactivar_giro_extremo_der:
+    ldi VEL_MOTOR_REV_IZQ, 0x00
+    ldi VEL_MOTOR_REV_DER, 0x00
+    
+    ldi VEL_MOTOR_DER, 0x00
+    ldi VEL_MOTOR_IZQ, VEL_MAX
+  ret
+
+  fin_desactivar_giro_extremo_der:
 
   mov VEL_MOTOR_IZQ_AUX,VEL_MOTOR_IZQ
 
@@ -238,16 +277,16 @@ doblar_der_suave:
           brlo mot_der_vel_nula
     ret
 
-   decre_suave_vel_mot_der:
-     sub VEL_MOTOR_DER,VAR_SUAVE
+  decre_suave_vel_mot_der:
+     sub VEL_MOTOR_DER,VAR_SUAVE 
+  ret
 
+  mot_der_vel_nula:
+     ldi VEL_MOTOR_DER, 0x00     
+   ret
 ret  
 
 
-mot_der_vel_nula:
-     ldi VEL_MOTOR_DER, 0x00
-     ldi VEL_MOTOR_REV_IZQ, VEL_REVERSA     
-   ret
 
 mot_izq_vel_max:
      ldi VEL_MOTOR_IZQ, VEL_MAX
@@ -263,8 +302,8 @@ detectar_lineas: ;si sucede que val_centro = 0 ---> la pista es blanca con raya 
 actualizarVelocidad:
   sts	OCR1BL, VEL_MOTOR_DER
   sts	OCR1AL, VEL_MOTOR_IZQ
-  out	OCR0B, VEL_MOTOR_REV_DER
-  out	OCR0A, VEL_MOTOR_REV_IZQ
+  out	OCR0A, VEL_MOTOR_REV_DER
+  out	OCR0B, VEL_MOTOR_REV_IZQ
 ret
 
 delay_inicial:  ;cinco seg 
