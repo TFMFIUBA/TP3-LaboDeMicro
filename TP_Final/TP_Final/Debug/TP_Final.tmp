@@ -1,0 +1,65 @@
+<ASSEMBLER_INFO>
+ <VERSION>2.2.8</VERSION>
+ <DEVICE>"ATmega328P"</DEVICE>
+ <WORKING_DIR>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\Debug</WORKING_DIR>
+ <INCLUDE_PATH>
+  <DIR>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc</DIR>
+  <DIR>C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avrassembler\Include</DIR>
+  <DIR></DIR>
+ </INCLUDE_PATH>
+ <SOURCE_FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</SOURCE_FILE>
+ <INCLUDED_FILES>
+  <FILE>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc</FILE>
+  <FILE>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328pdef.inc</FILE>
+ </INCLUDED_FILES>
+ <OBJECT_FILES>
+  <FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\Debug\TP_Final.obj</FILE>
+ </OBJECT_FILES>
+ <HEX_FILES>
+  <FILE>TP_Final.hex</FILE>
+ </HEX_FILES>
+ <OUTPUT_FILES>
+  <FILE>TP_Final.map</FILE>
+  <FILE>TP_Final.lss</FILE>
+ </OUTPUT_FILES>
+ <LABELS>
+  <main><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>34</LINE></main>
+  <config_puertos><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>322</LINE></config_puertos>
+  <configPWM><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>342</LINE></configPWM>
+  <wait><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>47</LINE></wait>
+  <actualizarVelocidad><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>302</LINE></actualizarVelocidad>
+  <loop><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>59</LINE></loop>
+  <doblar_izq_fuerte><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>89</LINE></doblar_izq_fuerte>
+  <doblar_der_fuerte><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>192</LINE></doblar_der_fuerte>
+  <doblar_izq_suave><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>133</LINE></doblar_izq_suave>
+  <doblar_der_suave><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>234</LINE></doblar_der_suave>
+  <sigo_centro><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>81</LINE></sigo_centro>
+  <apagarLed><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>379</LINE></apagarLed>
+  <encenderLed><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>375</LINE></encenderLed>
+  <red_fuerte_vel_izquierda><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>113</LINE></red_fuerte_vel_izquierda>
+  <subo_fuerte_vel_derecha><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>109</LINE></subo_fuerte_vel_derecha>
+  <mot_der_vel_max><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>188</LINE></mot_der_vel_max>
+  <decre_fuerte_vel_mot_izq><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>120</LINE></decre_fuerte_vel_mot_izq>
+  <mot_izq_rev_der_max><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>124</LINE></mot_izq_rev_der_max>
+  <desactivar_giro_extremo_izq><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>144</LINE></desactivar_giro_extremo_izq>
+  <fin_desactivar_giro_extremo_izq><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>152</LINE></fin_desactivar_giro_extremo_izq>
+  <red_suave_vel_izquierda><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>171</LINE></red_suave_vel_izquierda>
+  <subo_suave_vel_derecha><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>167</LINE></subo_suave_vel_derecha>
+  <decre_suave_vel_mot_izq><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>178</LINE></decre_suave_vel_mot_izq>
+  <mot_izq_vel_nula><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>182</LINE></mot_izq_vel_nula>
+  <red_fuerte_vel_derecha><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>215</LINE></red_fuerte_vel_derecha>
+  <subo_fuerte_vel_izquierda><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>211</LINE></subo_fuerte_vel_izquierda>
+  <mot_izq_vel_max><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>291</LINE></mot_izq_vel_max>
+  <decre_fuerte_vel_mot_der><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>222</LINE></decre_fuerte_vel_mot_der>
+  <mot_der_rev_izq_max><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>226</LINE></mot_der_rev_izq_max>
+  <desactivar_giro_extremo_der><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>246</LINE></desactivar_giro_extremo_der>
+  <fin_desactivar_giro_extremo_der><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>254</LINE></fin_desactivar_giro_extremo_der>
+  <red_suave_vel_derecha><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>273</LINE></red_suave_vel_derecha>
+  <subo_suave_vel_izquierda><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>269</LINE></subo_suave_vel_izquierda>
+  <decre_suave_vel_mot_der><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>280</LINE></decre_suave_vel_mot_der>
+  <mot_der_vel_nula><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>284</LINE></mot_der_vel_nula>
+  <detectar_lineas><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>297</LINE></detectar_lineas>
+  <delay_inicial><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>309</LINE></delay_inicial>
+  <L1><FILE>C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm</FILE><LINE>313</LINE></L1>
+ </LABELS>
+</ASSEMBLER_INFO>

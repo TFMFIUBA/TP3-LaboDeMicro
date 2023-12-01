@@ -1,0 +1,5 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "tcrt5000")(type "KiCad")(uri "${KIPRJMOD}/tcrt5000.kicad_sym")(options "")(descr ""))
+  (lib (name "L9110")(type "KiCad")(uri "${KIPRJMOD}/L9110.kicad_sym")(options "")(descr ""))
+)
