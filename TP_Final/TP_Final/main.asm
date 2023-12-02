@@ -1,10 +1,10 @@
 .include "m328pdef.inc"
 
-.equ VAR_SUAVE_VALOR = 5
-.equ VAR_FUERTE_VALOR = 30 
-.equ VEL_MAX = 80
-.equ VEL_MAX_EXTREMOS = 255
-.equ VEL_REVERSA = 25
+.equ VAR_SUAVE_VALOR = 1
+.equ VAR_FUERTE_VALOR = 2
+.equ VEL_MAX =  80 //200
+.equ VEL_MAX_EXTREMOS = 200 //225
+.equ VEL_REVERSA = 20
 
 .equ VAL_IZQ_2 = PC0 //0x01  ; 0 0 0 0 0 0 0 1 
 .equ VAL_IZQ_1 = PC1 //0x02  ; 0 0 0 0 0 0 1 0   
@@ -15,15 +15,18 @@
 .equ BLANCO = 1
 .equ NEGRO = 0
 
+.def TIPO_DE_PISTA = r16 ;Flag para decidir entre pista de fondo negro, linea blanca o inversa
+.def REG_TEMP = r17
+.def VAL_LEIDO = r18
 .def VEL_MOTOR_DER = r19
 .def VEL_MOTOR_IZQ = r20
 .def VEL_MOTOR_DER_AUX = r21
 .def VEL_MOTOR_IZQ_AUX = r22
-.def VAR_SUAVE = r16   ;cuando el giro debe ser fuerte la vel sube en un 10%
-.def VAR_FUERTE = r17  ;cuando el giro debe ser suave la vel sube en un 2%
-.def VAL_LEIDO = r18
-.def VEL_MOTOR_REV_DER = R23
-.def VEL_MOTOR_REV_IZQ = R24
+//.def VAR_SUAVE = r16   ;cuando el giro debe ser fuerte la vel sube en un 10%
+//.def VAR_FUERTE = r17  ;cuando el giro debe ser suave la vel sube en un 2%
+.def VEL_MOTOR_REV_DER = r23
+.def VEL_MOTOR_REV_IZQ = r24
+.def CONTADOR_TIMER = r25
 
 .cseg 
 .org 0x00
@@ -38,8 +41,9 @@ main:
   ldi r16, LOW(RAMEND)
   out SPL, r16
 
-  ldi VAR_SUAVE, VAR_SUAVE_VALOR
-  ldi VAR_FUERTE, VAR_FUERTE_VALOR
+  //ldi VAR_SUAVE, VAR_SUAVE_VALOR
+  //ldi VAR_FUERTE, VAR_FUERTE_VALOR
+  ldi CONTADOR_TIMER, 0x00
   
   call config_puertos
   call configPWM
@@ -79,7 +83,7 @@ main:
   rjmp loop
 
 sigo_centro: ;voy a toda vel 
-  call apagarLed
+  //call apagarLed
   ldi VEL_MOTOR_DER, VEL_MAX
   ldi VEL_MOTOR_IZQ, VEL_MAX
   ldi VEL_MOTOR_REV_DER, 0X00
@@ -87,7 +91,7 @@ sigo_centro: ;voy a toda vel
 ret
 
 doblar_izq_fuerte:
-  call encenderLed
+  //call encenderLed
   /*
   ldi VEL_MOTOR_DER, VEL_MAX_EXTREMOS
   ldi VEL_MOTOR_IZQ, 0 
@@ -98,7 +102,9 @@ doblar_izq_fuerte:
   cpi VEL_MOTOR_DER, VEL_MAX ; 1° veo si VEL_MOTOR_DER = 255
         breq red_fuerte_vel_izquierda ;si VEL_MOTOR_DER = 255 debo reducir la vel_motor_izq
 
-  add VEL_MOTOR_DER_AUX, VAR_FUERTE
+  ldi REG_TEMP, VAR_FUERTE_VALOR
+  add VEL_MOTOR_DER_AUX, REG_TEMP
+
   cpi VEL_MOTOR_DER_AUX, VEL_MAX ; ¿vel_motor_der = vel_motor_der + var_fuerte > 255 (vel max)?
         brlo subo_fuerte_vel_derecha ;salta si la suma es menor
 
@@ -107,7 +113,8 @@ doblar_izq_fuerte:
    ret
 
   subo_fuerte_vel_derecha:
-    add VEL_MOTOR_DER, VAR_FUERTE
+    ldi REG_TEMP, VAR_FUERTE_VALOR
+    add VEL_MOTOR_DER, REG_TEMP
 	ret
 
   red_fuerte_vel_izquierda:
@@ -118,7 +125,8 @@ doblar_izq_fuerte:
     ret
 
   decre_fuerte_vel_mot_izq:
-     sub VEL_MOTOR_IZQ,VAR_FUERTE 
+    ldi REG_TEMP, VAR_FUERTE_VALOR
+    sub VEL_MOTOR_IZQ, REG_TEMP 
   ret
 
   mot_izq_rev_der_max:
@@ -131,12 +139,12 @@ doblar_izq_fuerte:
 ret             
 
 doblar_izq_suave:
-  call apagarLed
+  //call apagarLed
 /*  ldi VEL_MOTOR_DER, VEL_MAX
   ldi VEL_MOTOR_IZQ, 0 
   */
 
-  cpi VEL_MOTOR_IZQ, VEL_REVERSA
+  cpi VEL_MOTOR_REV_IZQ, VEL_REVERSA
   breq desactivar_giro_extremo_izq
 
   rjmp fin_desactivar_giro_extremo_izq
@@ -147,6 +155,7 @@ doblar_izq_suave:
     
     ldi VEL_MOTOR_IZQ, 0x00
     ldi VEL_MOTOR_DER, VEL_MAX
+    call encenderLed
   ret
 
   fin_desactivar_giro_extremo_izq:
@@ -156,7 +165,9 @@ doblar_izq_suave:
   cpi VEL_MOTOR_DER, VEL_MAX ; 1° veo si VEL_MOTOR_DER = 255
         breq  red_suave_vel_izquierda;si VEL_MOTOR_DER = 255 debo reducir la vel_motor_izq
 
-  add VEL_MOTOR_DER_AUX, VAR_SUAVE
+  ldi REG_TEMP, VAR_SUAVE_VALOR
+  add VEL_MOTOR_DER_AUX, REG_TEMP
+
   cpi VEL_MOTOR_DER_AUX, VEL_MAX ; ¿vel_motor_der = vel_motor_der + var_fuerte > 255 (vel max)?
         brlo subo_suave_vel_derecha ;salta si la suma es menor
 
@@ -165,7 +176,8 @@ doblar_izq_suave:
   ret
 
   subo_suave_vel_derecha:
-    add VEL_MOTOR_DER, VAR_SUAVE
+    ldi REG_TEMP, VAR_SUAVE_VALOR
+    add VEL_MOTOR_DER, REG_TEMP
 	ret
 
   red_suave_vel_izquierda:
@@ -176,7 +188,8 @@ doblar_izq_suave:
     ret
 
   decre_suave_vel_mot_izq:
-     sub VEL_MOTOR_IZQ,VAR_SUAVE 
+    ldi REG_TEMP, VAR_SUAVE_VALOR
+    sub VEL_MOTOR_IZQ, REG_TEMP 
   ret
   
   mot_izq_vel_nula:
@@ -190,7 +203,7 @@ mot_der_vel_max:
    ret
 
 doblar_der_fuerte:
-  call encenderLed
+  //call encenderLed
   /*ldi VEL_MOTOR_DER, 0
   ldi VEL_MOTOR_IZQ, VEL_MAX_EXTREMOS
   ldi VEL_MOTOR_REV_DER, VEL_REVERSA
@@ -200,7 +213,8 @@ doblar_der_fuerte:
   cpi VEL_MOTOR_IZQ, VEL_MAX ; 1° veo si VEL_MOTOR_IZQ = 255
         breq red_fuerte_vel_derecha ;si VEL_MOTOR_IZQ = 255 debo reducir la vel_motor_der
 
-  add VEL_MOTOR_IZQ_AUX, VAR_FUERTE
+  ldi REG_TEMP, VAR_FUERTE_VALOR
+  add VEL_MOTOR_IZQ_AUX, REG_TEMP
   cpi VEL_MOTOR_IZQ_AUX, VEL_MAX ; ¿vel_motor_izq = vel_motor_izq + var_fuerte > 255 (vel max)?
         brlo subo_fuerte_vel_izquierda ;salta si la suma es menor
 
@@ -209,7 +223,8 @@ doblar_der_fuerte:
   ret
 
   subo_fuerte_vel_izquierda:
-    add VEL_MOTOR_IZQ, VAR_FUERTE
+    ldi REG_TEMP, VAR_FUERTE_VALOR
+    add VEL_MOTOR_IZQ, REG_TEMP
 	ret
 
   red_fuerte_vel_derecha:
@@ -220,7 +235,8 @@ doblar_der_fuerte:
     ret
 
   decre_fuerte_vel_mot_der:
-     sub VEL_MOTOR_DER,VAR_FUERTE 
+    ldi REG_TEMP, VAR_FUERTE_VALOR
+    sub VEL_MOTOR_DER, REG_TEMP 
   ret
 
   mot_der_rev_izq_max:
@@ -232,13 +248,13 @@ doblar_der_fuerte:
 ret
 
 doblar_der_suave:
-  call apagarLed
+  //call apagarLed
 /*
   ldi VEL_MOTOR_DER, 0
   ldi VEL_MOTOR_IZQ, VEL_MAX
   */
 
-  cpi VEL_MOTOR_DER, VEL_REVERSA
+  cpi VEL_MOTOR_REV_DER, VEL_REVERSA
   breq desactivar_giro_extremo_der
 
   rjmp fin_desactivar_giro_extremo_der
@@ -249,6 +265,7 @@ doblar_der_suave:
     
     ldi VEL_MOTOR_DER, 0x00
     ldi VEL_MOTOR_IZQ, VEL_MAX
+    call encenderLed
   ret
 
   fin_desactivar_giro_extremo_der:
@@ -258,7 +275,9 @@ doblar_der_suave:
   cpi VEL_MOTOR_IZQ, VEL_MAX ; 1° veo si VEL_MOTOR_IZQ = 255
         breq red_suave_vel_derecha ;si VEL_MOTOR_IZQ = 255 debo reducir la vel_motor_der
 
-  add VEL_MOTOR_IZQ_AUX, VAR_SUAVE
+  ldi REG_TEMP, VAR_SUAVE_VALOR
+  add VEL_MOTOR_IZQ_AUX, REG_TEMP
+
   cpi VEL_MOTOR_IZQ_AUX, VEL_MAX ; ¿vel_motor_izq = vel_motor_izq + var_fuerte > 255 (vel max)?
         brlo subo_suave_vel_izquierda ;salta si la suma es menor
 
@@ -267,7 +286,8 @@ doblar_der_suave:
   ret
 
   subo_suave_vel_izquierda:
-    add VEL_MOTOR_IZQ, VAR_SUAVE
+    ldi REG_TEMP, VAR_SUAVE_VALOR
+    add VEL_MOTOR_IZQ, REG_TEMP
   ret
 
   red_suave_vel_derecha:
@@ -278,7 +298,8 @@ doblar_der_suave:
     ret
 
   decre_suave_vel_mot_der:
-     sub VEL_MOTOR_DER,VAR_SUAVE 
+    ldi REG_TEMP, VAR_SUAVE_VALOR
+    sub VEL_MOTOR_DER,REG_TEMP 
   ret
 
   mot_der_vel_nula:
@@ -302,8 +323,8 @@ detectar_lineas: ;si sucede que val_centro = 0 ---> la pista es blanca con raya 
 actualizarVelocidad:
   sts	OCR1BL, VEL_MOTOR_DER
   sts	OCR1AL, VEL_MOTOR_IZQ
-  out	OCR0A, VEL_MOTOR_REV_DER
-  out	OCR0B, VEL_MOTOR_REV_IZQ
+  out	OCR0B, VEL_MOTOR_REV_DER
+  out	OCR0A, VEL_MOTOR_REV_IZQ
 ret
 
 delay_inicial:  ;cinco seg 
@@ -379,3 +400,12 @@ ret
 apagarLed:
   cbi PORTD, PD7
 ret
+
+linea_perdida:
+;enciende el timer 2 si no fue encendido antes  y cuenta 61 overflows (2 segundos) en ese momento frena el auto
+;modo CTC con preescaler de 1024 y top en 0xff
+ret
+
+handler_interrup_overflow:
+;va sumando de a uno al contador y si alcanza el valor 61 frena el auto
+reti

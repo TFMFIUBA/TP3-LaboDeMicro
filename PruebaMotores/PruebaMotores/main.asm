@@ -76,9 +76,10 @@ configPWM:
   ldi	r16, (0 << WGM02) | (1 << CS02) | (0 << CS01) | (0 << CS00)
   out	TCCR0B, r16
   
-  ldI r16, 20
-
+  ldI r16, 25
   out	OCR0B, r16
+  
+  ldI r16, 00
   out	OCR0A, r16
  
  
