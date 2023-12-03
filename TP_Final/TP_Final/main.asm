@@ -57,7 +57,7 @@ main:
   ldi VEL_MOTOR_DER, VEL_MAX
   ldi VEL_MOTOR_IZQ, VEL_MAX
   call actualizarVelocidad 
-
+  
 
   loop:
     in VAL_LEIDO, PINC    ;leo valores de los sensores y dependiendo de que leyeron giro o sigo en linea recta
@@ -65,11 +65,11 @@ main:
     call acomodar_valores_a_tipo_de_pista
 
     mov REG_TEMP, VAL_LEIDO
-
+    andi REG_TEMP, 0b11111
     cpi REG_TEMP, 0b11111
     brmi continuacion_loop
 
-    call curva_recta //ESTÁ ENTRANDO EN EL CASO EXACTAMENTE OPUESTO, PONELE QUE COMPLEMENTO A UNO Y FUNCIONA
+    call curva_recta
 
     continuacion_loop:
 
@@ -400,8 +400,6 @@ ret
 
 curva_recta:
 
-  call encenderLed
-
   ldi VEL_MOTOR_DER, VEL_MIN
   ldi VEL_MOTOR_IZQ, VEL_MIN
   ldi VEL_MOTOR_REV_DER, 0X00
@@ -410,7 +408,6 @@ curva_recta:
   call actualizarVelocidad
 
   in VAL_LEIDO, PINC
-
   call acomodar_valores_a_tipo_de_pista
 
   andi VAL_LEIDO, 0b10001
@@ -423,7 +420,6 @@ curva_recta:
   fin_primera_linea:
 
   in VAL_LEIDO, PINC
-
   call acomodar_valores_a_tipo_de_pista
 
   andi VAL_LEIDO, 0b10001
@@ -436,7 +432,6 @@ curva_recta:
   inicio_segunda_linea:
   
   in VAL_LEIDO, PINC
-
   call acomodar_valores_a_tipo_de_pista
 
   andi VAL_LEIDO, 0b10001
@@ -447,9 +442,8 @@ curva_recta:
   rjmp inicio_segunda_linea
 
   fin_segunda_linea: //hasta aca llega
-  call encenderLed
+  
   in VAL_LEIDO, PINC
-
   call acomodar_valores_a_tipo_de_pista
 
   andi VAL_LEIDO, 0b10001
@@ -459,13 +453,23 @@ curva_recta:
 
   inicio_curva:
   
+  
   sbrc VAL_LEIDO, VAL_IZQ_2
   call giro_cerrado_izq
 
   sbrc VAL_LEIDO, VAL_DER_2
   call giro_cerrado_der
 
-  call apagarLed
+  call actualizarVelocidad
+  
+  espera_leer_centro:
+  
+  in VAL_LEIDO, PINC
+  call acomodar_valores_a_tipo_de_pista
+
+  sbrs VAL_LEIDO, VAL_CENTRO
+  rjmp espera_leer_centro
+
 ret
 
 giro_cerrado_izq:
