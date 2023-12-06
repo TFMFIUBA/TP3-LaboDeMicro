@@ -1,4 +1,23 @@
+; Este código fue desarrollado para controlar un auto seguidor de línea con dos motores y un ball caster
+; en posición "Triciclo" que utiliza un módulo de 5 sensores infrarrojos TCRT5000, uno central y dos 
+; a cada lado.
+
+; El mismo implementa una máquina de estados junto con la parte proporcional de un control PID y posee tanto 
+; una corrección suave para pequeños errores como un estado de "giro brusco" para realizar correcciones 
+; rápidas.
+; A su vez implementa la detección de la señalización de curva de 90º (Dos líneas seguidas y perpendiculares
+; a la línea principal) y su correspondiente respuesta.
+
+; Para calibrar las reacciones del auto únicamente es necesario modificar únicamente las constantes de 
+; calibración que se encuentran al inicio del código. El resto del código no necesita ser modificado a 
+; menos que se necesite cambiar el algoritmo de alguno de los estados.
+
+
+
+
 .include "m328pdef.inc"
+
+; Inicio de las variables de calibración
 
 .equ VAR_SUAVE = 1            ;Paso con el que varían las velocidades en doblar suave
 .equ VAR_FUERTE = 2           ;Paso con el que varían las velocidades en doblar fuerte
@@ -6,6 +25,9 @@
 .equ VEL_MAX_EXTREMOS = 200   ;Velocidad máxima de las ruedas exteriores cuando se necesita un giro brusco, puede variar entre 0 y 255
 .equ VEL_REVERSA = 20         ;Velocidad de las ruedas interiores cuando se necesita un giro brusco y se activa la reversa, puede variar entre 0 y 255
 .equ VEL_MIN = 30             ;Velocidad cuando se necesita ir a velocidad mínima, puede variar entre 0 y 255
+
+; Fin de las variables de calibración
+
 
 .equ VAL_IZQ_2 = PC0 //0x01  ; 0 0 0 0 0 0 0 1 
 .equ VAL_IZQ_1 = PC1 //0x02  ; 0 0 0 0 0 0 1 0   
@@ -18,7 +40,7 @@
 
 .def PISTA_BLA_LINEA_NEG = r16 ;Flag para decidir entre pista de fondo negro, linea blanca o inversa
 .def REG_TEMP = r17
-.def VAL_LEIDO = r18
+.def VAL_LEIDO = r18 ;Registro donde se almacena el estado de los sensores
 .def VEL_MOTOR_DER = r19
 .def VEL_MOTOR_IZQ = r20
 .def VEL_MOTOR_DER_AUX = r21
