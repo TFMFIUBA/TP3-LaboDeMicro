@@ -1,11 +1,11 @@
 .include "m328pdef.inc"
 
-.equ VAR_SUAVE_VALOR = 1
-.equ VAR_FUERTE_VALOR = 2
-.equ VEL_MAX =  80 
-.equ VEL_MAX_EXTREMOS = 200 
-.equ VEL_REVERSA = 20
-.equ VEL_MIN = 30
+.equ VAR_SUAVE = 1            ;Paso con el que varían las velocidades en doblar suave
+.equ VAR_FUERTE = 2           ;Paso con el que varían las velocidades en doblar fuerte
+.equ VEL_MAX =  80            ;Velocidad máxima, puede variar entre 0 y 255
+.equ VEL_MAX_EXTREMOS = 200   ;Velocidad máxima de las ruedas exteriores cuando se necesita un giro brusco, puede variar entre 0 y 255
+.equ VEL_REVERSA = 20         ;Velocidad de las ruedas interiores cuando se necesita un giro brusco y se activa la reversa, puede variar entre 0 y 255
+.equ VEL_MIN = 30             ;Velocidad cuando se necesita ir a velocidad mínima, puede variar entre 0 y 255
 
 .equ VAL_IZQ_2 = PC0 //0x01  ; 0 0 0 0 0 0 0 1 
 .equ VAL_IZQ_1 = PC1 //0x02  ; 0 0 0 0 0 0 1 0   
@@ -42,13 +42,11 @@ main:
   ldi REG_TEMP, LOW(RAMEND)
   out SPL, REG_TEMP
 
-  ldi CONTADOR_TIMER, 0x00
-  
   call config_puertos
   call configPWM
 
-  wait:
-    sbic PINB, PB0 ; Espera a que se pulse el botón
+  wait: ;Espera a que se pulse el botón
+    sbic PINB, PB0 
 		rjmp wait
   call elegir_tipo_de_pista
   
@@ -58,14 +56,15 @@ main:
   ldi VEL_MOTOR_IZQ, VEL_MAX
   call actualizarVelocidad 
 
+  ldi CONTADOR_TIMER, 0x00
   SEI
 
-  loop:
-    in VAL_LEIDO, PINC    ;leo valores de los sensores y dependiendo de que leyeron giro o sigo en linea recta
+  loop: ;Se leen valores de los sensores y se decide la reacción
 
+    in VAL_LEIDO, PINC ;Lectura de sensores
     call acomodar_valores_a_tipo_de_pista
 
-    mov REG_TEMP, VAL_LEIDO
+    mov REG_TEMP, VAL_LEIDO ;Comprobación del caso "curva de 90º"
     andi REG_TEMP, 0b11111
     cpi REG_TEMP, 0b11111
     brmi continuacion_loop
@@ -93,7 +92,7 @@ main:
 
   rjmp loop
 
-sigo_centro: ;voy a toda vel 
+sigo_centro: ;Ambos motores a velocidad máxima
 
   ldi CONTADOR_TIMER, 0x00
 
@@ -109,33 +108,34 @@ doblar_izq_fuerte:
 
   mov VEL_MOTOR_DER_AUX,VEL_MOTOR_DER
 
-  cpi VEL_MOTOR_DER, VEL_MAX ; 1° veo si VEL_MOTOR_DER = 255
-        breq red_fuerte_vel_izquierda ;si VEL_MOTOR_DER = 255 debo reducir la vel_motor_izq
+  cpi VEL_MOTOR_DER, VEL_MAX
+  breq red_fuerte_vel_izquierda ;Si VEL_MOTOR_DER = VEL_MAX se reduce la velocidad del motor izquierdo
 
-  ldi REG_TEMP, VAR_FUERTE_VALOR
+  ldi REG_TEMP, VAR_FUERTE
   add VEL_MOTOR_DER_AUX, REG_TEMP
 
-  cpi VEL_MOTOR_DER_AUX, VEL_MAX ; ¿vel_motor_der = vel_motor_der + var_fuerte > 255 (vel max)?
-        brlo subo_fuerte_vel_derecha ;salta si la suma es menor
+  cpi VEL_MOTOR_DER_AUX, VEL_MAX 
+  brlo subo_fuerte_vel_derecha ;Si VEL_MOTOR_DER + VAR_FUERTE < VEL_MAX se aumenta la velocidad del motor derecho
 
   cpi VEL_MOTOR_DER, VEL_MAX
-        brsh mot_der_vel_max
+  brsh mot_der_vel_max ;Si VEL_MOTOR_DER + VAR_FUERTE > VEL_MAX se aumenta la velocidad del motor derecho a VEL_MAX
   rjmp final_doblar_izq_fuerte
 
   subo_fuerte_vel_derecha:
-    ldi REG_TEMP, VAR_FUERTE_VALOR
+    ldi REG_TEMP, VAR_FUERTE
     add VEL_MOTOR_DER, REG_TEMP
 	rjmp final_doblar_izq_fuerte
 
   red_fuerte_vel_izquierda:
-    cpi VEL_MOTOR_IZQ, VAR_FUERTE_VALOR
-          brsh decre_fuerte_vel_mot_izq        ;si la vel izq es mayor a la var suave, puedo decrementar su valor
-    cpi VEL_MOTOR_IZQ, VAR_FUERTE_VALOR
-          brlo mot_izq_rev_der_max
+    cpi VEL_MOTOR_IZQ, VAR_FUERTE
+    brsh decre_fuerte_vel_mot_izq
+    
+    cpi VEL_MOTOR_IZQ, VAR_FUERTE
+    brlo mot_izq_rev_der_max ;Si VEL_MOTOR_IZQ - VAR_FUERTE < 0 => motor derecho a VEL_MAX Y motor izquierdo en reversa
   rjmp final_doblar_izq_fuerte
 
   decre_fuerte_vel_mot_izq:
-    ldi REG_TEMP, VAR_FUERTE_VALOR
+    ldi REG_TEMP, VAR_FUERTE
     sub VEL_MOTOR_IZQ, REG_TEMP 
   rjmp final_doblar_izq_fuerte
 
@@ -153,7 +153,7 @@ doblar_izq_suave:
   ldi CONTADOR_TIMER, 0x00
 
   cpi VEL_MOTOR_REV_IZQ, VEL_REVERSA
-  breq desactivar_giro_extremo_izq
+  breq desactivar_giro_extremo_izq ;Se desactiva la reversa si está activada
 
   rjmp fin_desactivar_giro_extremo_izq
 
@@ -169,35 +169,35 @@ doblar_izq_suave:
 
   mov VEL_MOTOR_DER_AUX,VEL_MOTOR_DER
 
-  cpi VEL_MOTOR_DER, VEL_MAX ; 1° veo si VEL_MOTOR_DER = 255
-  breq  red_suave_vel_izquierda;si VEL_MOTOR_DER = 255 debo reducir la vel_motor_izq
+  cpi VEL_MOTOR_DER, VEL_MAX 
+  breq  red_suave_vel_izquierda ;Si VEL_MOTOR_DER = VEL_MAX se reduce la velocidad del motor izquierdo
 
-  ldi REG_TEMP, VAR_SUAVE_VALOR
+  ldi REG_TEMP, VAR_SUAVE
   add VEL_MOTOR_DER_AUX, REG_TEMP
 
-  cpi VEL_MOTOR_DER_AUX, VEL_MAX ; ¿vel_motor_der = vel_motor_der + var_fuerte > 255 (vel max)?
-  brlo subo_suave_vel_derecha ;salta si la suma es menor
+  cpi VEL_MOTOR_DER_AUX, VEL_MAX 
+  brlo subo_suave_vel_derecha ;Si VEL_MOTOR_DER + VAR_SUAVE < VEL_MAX se aumenta la velocidad del motor derecho
 
   cpi VEL_MOTOR_DER, VEL_MAX
-  brsh mot_der_vel_max
+  brsh mot_der_vel_max  ;Si VEL_MOTOR_DER + VAR_SUAVE > VEL_MAX => motor derecho a VEL_MAX Y motor izquierdo a velocidad nula
   
   rjmp final_doblar_izq_suave
 
   subo_suave_vel_derecha:
-    ldi REG_TEMP, VAR_SUAVE_VALOR
+    ldi REG_TEMP, VAR_SUAVE
     add VEL_MOTOR_DER, REG_TEMP
 	rjmp final_doblar_izq_suave
 
   red_suave_vel_izquierda:
-    cpi VEL_MOTOR_IZQ, VAR_SUAVE_VALOR
-    brsh decre_suave_vel_mot_izq        ;si la vel izq es mayor a la var suave, puedo decrementar su valor
+    cpi VEL_MOTOR_IZQ, VAR_SUAVE
+    brsh decre_suave_vel_mot_izq
     
-    cpi VEL_MOTOR_IZQ, VAR_SUAVE_VALOR
+    cpi VEL_MOTOR_IZQ, VAR_SUAVE
     brlo mot_izq_vel_nula
   rjmp final_doblar_izq_suave
 
   decre_suave_vel_mot_izq:
-    ldi REG_TEMP, VAR_SUAVE_VALOR
+    ldi REG_TEMP, VAR_SUAVE
     sub VEL_MOTOR_IZQ, REG_TEMP 
   rjmp final_doblar_izq_suave
   
@@ -209,7 +209,7 @@ doblar_izq_suave:
 ret             
 
 mot_der_vel_max:
-     ldi VEL_MOTOR_DER, VEL_MAX
+  ldi VEL_MOTOR_DER, VEL_MAX
 ret
 
 doblar_der_fuerte:
@@ -218,35 +218,35 @@ doblar_der_fuerte:
 
   mov VEL_MOTOR_IZQ_AUX,VEL_MOTOR_IZQ
 
-  cpi VEL_MOTOR_IZQ, VEL_MAX ; 1° veo si VEL_MOTOR_IZQ = 255
-  breq red_fuerte_vel_derecha ;si VEL_MOTOR_IZQ = 255 debo reducir la vel_motor_der
+  cpi VEL_MOTOR_IZQ, VEL_MAX 
+  breq red_fuerte_vel_derecha ;Si VEL_MOTOR_IZQ = VEL_MAX se reduce la velocidad del motor derecho
 
-  ldi REG_TEMP, VAR_FUERTE_VALOR
+  ldi REG_TEMP, VAR_FUERTE
   add VEL_MOTOR_IZQ_AUX, REG_TEMP
   
-  cpi VEL_MOTOR_IZQ_AUX, VEL_MAX ; ¿vel_motor_izq = vel_motor_izq + var_fuerte > 255 (vel max)?
-  brlo subo_fuerte_vel_izquierda ;salta si la suma es menor
+  cpi VEL_MOTOR_IZQ_AUX, VEL_MAX
+  brlo subo_fuerte_vel_izquierda ;Si VEL_MOTOR_IZQ + VAR_FUERTE < VEL_MAX se aumenta la velocidad del motor izquierdo
 
   cpi VEL_MOTOR_IZQ, VEL_MAX
-  brsh mot_izq_vel_max
+  brsh mot_izq_vel_max  ;Si VEL_MOTOR_IZQ + VAR_FUERTE > VEL_MAX se aumenta la velocidad del motor izquierdo a VEL_MAX
   
   rjmp final_doblar_der_fuerte
 
   subo_fuerte_vel_izquierda:
-    ldi REG_TEMP, VAR_FUERTE_VALOR
+    ldi REG_TEMP, VAR_FUERTE
     add VEL_MOTOR_IZQ, REG_TEMP
 	rjmp final_doblar_der_fuerte
 
   red_fuerte_vel_derecha:
-    cpi VEL_MOTOR_DER, VAR_FUERTE_VALOR
-    brsh decre_fuerte_vel_mot_der       ;si la vel der es mayor a la var suave, puedo decrementar su valor
+    cpi VEL_MOTOR_DER, VAR_FUERTE
+    brsh decre_fuerte_vel_mot_der
     
-    cpi VEL_MOTOR_DER, VAR_FUERTE_VALOR
-    brlo mot_der_rev_izq_max
+    cpi VEL_MOTOR_DER, VAR_FUERTE
+    brlo mot_der_rev_izq_max ;Si VEL_MOTOR_DER - VAR_FUERTE < 0 => motor izquierdo a VEL_MAX Y motor derecho en reversa
   rjmp final_doblar_der_fuerte
 
   decre_fuerte_vel_mot_der:
-    ldi REG_TEMP, VAR_FUERTE_VALOR
+    ldi REG_TEMP, VAR_FUERTE
     sub VEL_MOTOR_DER, REG_TEMP 
   ret
 
@@ -264,7 +264,7 @@ doblar_der_suave:
   ldi CONTADOR_TIMER, 0x00
 
   cpi VEL_MOTOR_REV_DER, VEL_REVERSA
-  breq desactivar_giro_extremo_der
+  breq desactivar_giro_extremo_der  ;Se desactiva la reversa si está activada
 
   rjmp fin_desactivar_giro_extremo_der
 
@@ -280,35 +280,35 @@ doblar_der_suave:
 
   mov VEL_MOTOR_IZQ_AUX,VEL_MOTOR_IZQ
 
-  cpi VEL_MOTOR_IZQ, VEL_MAX ; 1° veo si VEL_MOTOR_IZQ = 255
-  breq red_suave_vel_derecha ;si VEL_MOTOR_IZQ = 255 debo reducir la vel_motor_der
+  cpi VEL_MOTOR_IZQ, VEL_MAX 
+  breq red_suave_vel_derecha ;Si VEL_MOTOR_IZQ = VEL_MAX se reduce la velocidad del motor derecho
 
-  ldi REG_TEMP, VAR_SUAVE_VALOR
+  ldi REG_TEMP, VAR_SUAVE
   add VEL_MOTOR_IZQ_AUX, REG_TEMP
 
-  cpi VEL_MOTOR_IZQ_AUX, VEL_MAX ; ¿vel_motor_izq = vel_motor_izq + var_fuerte > 255 (vel max)?
-  brlo subo_suave_vel_izquierda ;salta si la suma es menor
+  cpi VEL_MOTOR_IZQ_AUX, VEL_MAX
+  brlo subo_suave_vel_izquierda ;Si VEL_MOTOR_IZQ + VAR_SUAVE < VEL_MAX se aumenta la velocidad del motor izquierdo
 
   cpi VEL_MOTOR_IZQ, VEL_MAX
-  brsh mot_izq_vel_max
+  brsh mot_izq_vel_max ;Si VEL_MOTOR_IZQ + VAR_SUAVE > VEL_MAX => motor izquierdo a VEL_MAX Y motor derecho a velocidad nula
   
   rjmp final_doblar_der_suave
 
   subo_suave_vel_izquierda:
-    ldi REG_TEMP, VAR_SUAVE_VALOR
+    ldi REG_TEMP, VAR_SUAVE
     add VEL_MOTOR_IZQ, REG_TEMP
   rjmp final_doblar_der_suave
 
   red_suave_vel_derecha:
-    cpi VEL_MOTOR_DER, VAR_SUAVE_VALOR
-    brsh decre_suave_vel_mot_der        ;si la vel der es mayor a la var suave, puedo decrementar su valor
+    cpi VEL_MOTOR_DER, VAR_SUAVE
+    brsh decre_suave_vel_mot_der
     
-    cpi VEL_MOTOR_DER, VAR_SUAVE_VALOR
+    cpi VEL_MOTOR_DER, VAR_SUAVE
     brlo mot_der_vel_nula
   rjmp final_doblar_der_suave
 
   decre_suave_vel_mot_der:
-    ldi REG_TEMP, VAR_SUAVE_VALOR
+    ldi REG_TEMP, VAR_SUAVE
     sub VEL_MOTOR_DER,REG_TEMP 
   rjmp final_doblar_der_suave
 
@@ -371,17 +371,14 @@ config_puertos:
 
   ldi REG_TEMP, 0x00
   out DDRC,REG_TEMP
-              
+
   ldi REG_TEMP, (0 << PB0) | (1 << PB1) | (1 << PB2)
   out DDRB,REG_TEMP
 
               
   ldi REG_TEMP,(1 << PD7) | (1 << PD5) | (1 << PD6)
-  out DDRD,REG_TEMP ; 1 led conectado a PD7
+  out DDRD,REG_TEMP ;
   
-  cbi PORTD, PD5 //Sacar para usar reversa
-  cbi PORTD, PD6
-
 ret
 
 
@@ -432,7 +429,7 @@ apagarLed:
   cbi PORTD, PD7
 ret
 
-elegir_tipo_de_pista:
+elegir_tipo_de_pista: ;Decide el tipo de pista evaluando los sensores mas alejados
   in REG_TEMP, PINC
   andi REG_TEMP, 0b10001
   
@@ -447,6 +444,8 @@ elegir_tipo_de_pista:
 ret
 
 curva_recta:
+;Se ponen los motores a velocidad mínima, se espera a leer dos líneas perpendiculares a la dirección del auto y 
+;se realiza un giro cerrado hacia el lado correcto
 
   ldi VEL_MOTOR_DER, VEL_MIN
   ldi VEL_MOTOR_IZQ, VEL_MIN
@@ -461,7 +460,7 @@ curva_recta:
   andi VAL_LEIDO, 0b10001
   
   tst VAL_LEIDO
-  breq fin_primera_linea
+  breq fin_primera_linea ;Espera a que termine de leerse la primer línea perpendicular
 
   rjmp curva_recta
 
@@ -473,7 +472,7 @@ curva_recta:
   andi VAL_LEIDO, 0b10001
   
   cpi VAL_LEIDO, 0b10001
-  breq inicio_segunda_linea
+  breq inicio_segunda_linea ;Espera a que se comienze a leer la segunda línea perpendicular
 
   rjmp fin_primera_linea
 
@@ -485,7 +484,7 @@ curva_recta:
   andi VAL_LEIDO, 0b10001
   
   tst VAL_LEIDO
-  breq fin_segunda_linea
+  breq fin_segunda_linea ;Espera a que termine de leerse la segunda línea perpendicular
 
   rjmp inicio_segunda_linea
 
@@ -497,10 +496,10 @@ curva_recta:
   andi VAL_LEIDO, 0b10001
   
   tst VAL_LEIDO
-  breq fin_segunda_linea
+  breq fin_segunda_linea ;Espera a que se lea el inicio de la curva de 90º
 
   
-  inicio_curva:
+  inicio_curva: ;Se leen los sensores de los extremos, según cual se encienda se decide la dirección de giro
     
   sbrc VAL_LEIDO, VAL_IZQ_2
   call giro_cerrado_izq
@@ -518,7 +517,7 @@ curva_recta:
   andi VAL_LEIDO, 0b10001
   
   tst VAL_LEIDO
-  breq espera_leer_centro
+  breq espera_leer_centro ;Espera a que el sensor extremo que se había activado se desactive
 
   rjmp fin_lectura_lateral
 
@@ -528,7 +527,7 @@ curva_recta:
   call acomodar_valores_a_tipo_de_pista
 
   sbrs VAL_LEIDO, VAL_CENTRO
-  rjmp espera_leer_centro
+  rjmp espera_leer_centro ;Continúa realizando el giro cerrado hasta que se activa el sensor central
 
 ret
 
@@ -549,18 +548,19 @@ acomodar_valores_a_tipo_de_pista:
   breq fin_acomodar_a_tipo_de_pista
 
   com VAL_LEIDO
+
   fin_acomodar_a_tipo_de_pista:
 ret
 
 handler_interrup_overflow:
-;Cuando el contador alcanza el valor 100 (dos segundos sin leer nada) el auto se frena
+;Cuando el contador alcanza el valor 120 (dos segundos sin que ningún sensor se active) el auto se frena y se enciende el led
 
   push REG_TEMP
   in REG_TEMP, SREG
 
   inc CONTADOR_TIMER
 
-  cpi CONTADOR_TIMER, 100
+  cpi CONTADOR_TIMER, 120
   brmi final_handler_interrup_overflow
 
   ldi VEL_MOTOR_DER, 0x00

@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm Mon Dec 04 16:33:59 2023
+AVRASM ver. 2.2.8  C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm Mon Dec 04 18:55:26 2023
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328Pdef.inc'
 C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm(1): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\avrasm\inc\m328pdef.inc'
@@ -1033,8 +1033,8 @@ C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\
                                  
                                  .equ VAR_SUAVE_VALOR = 1
                                  .equ VAR_FUERTE_VALOR = 2
-                                 .equ VEL_MAX =  80 //200
-                                 .equ VEL_MAX_EXTREMOS = 200 //225
+                                 .equ VEL_MAX =  80 
+                                 .equ VEL_MAX_EXTREMOS = 200 
                                  .equ VEL_REVERSA = 20
                                  .equ VEL_MIN = 30
                                  
@@ -1151,32 +1151,32 @@ C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\
                                  
 000071 3530                        cpi VEL_MOTOR_DER, VEL_MAX
 000072 f590                              brsh mot_der_vel_max
-000073 9508                         ret
+000073 c00f                        rjmp final_doblar_izq_fuerte
                                  
                                    subo_fuerte_vel_derecha:
 000074 e012                          ldi REG_TEMP, VAR_FUERTE_VALOR
 000075 0f31                          add VEL_MOTOR_DER, REG_TEMP
-000076 9508                      	ret
+000076 c00c                      	rjmp final_doblar_izq_fuerte
                                  
                                    red_fuerte_vel_izquierda:
 000077 3042                          cpi VEL_MOTOR_IZQ, VAR_FUERTE_VALOR
 000078 f418                                brsh decre_fuerte_vel_mot_izq        ;si la vel izq es mayor a la var suave, puedo decrementar su valor
 000079 3042                          cpi VEL_MOTOR_IZQ, VAR_FUERTE_VALOR
 00007a f020                                brlo mot_izq_rev_der_max
-00007b 9508                          ret
+00007b c007                        rjmp final_doblar_izq_fuerte
                                  
                                    decre_fuerte_vel_mot_izq:
 00007c e012                          ldi REG_TEMP, VAR_FUERTE_VALOR
 00007d 1b41                          sub VEL_MOTOR_IZQ, REG_TEMP 
-00007e 9508                        ret
+00007e c004                        rjmp final_doblar_izq_fuerte
                                  
                                    mot_izq_rev_der_max:
 00007f e040                           ldi VEL_MOTOR_IZQ, 0x00
 000080 e184                           ldi VEL_MOTOR_REV_IZQ, VEL_REVERSA
 000081 ec38                           ldi VEL_MOTOR_DER, VEL_MAX_EXTREMOS
-000082 9508                        ret
+000082 c000                        rjmp final_doblar_izq_fuerte
                                  
-                                   
+                                   final_doblar_izq_fuerte:
 000083 9508                      ret             
                                  
                                  doblar_izq_suave:
@@ -1194,51 +1194,54 @@ C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\
                                      
 00008a e040                          ldi VEL_MOTOR_IZQ, 0x00
 00008b e530                          ldi VEL_MOTOR_DER, VEL_MAX
-00008c 9508                        ret
+00008c c017                        rjmp final_doblar_izq_suave
                                  
                                    fin_desactivar_giro_extremo_izq:
                                  
 00008d 2f53                        mov VEL_MOTOR_DER_AUX,VEL_MOTOR_DER
                                  
 00008e 3530                        cpi VEL_MOTOR_DER, VEL_MAX ; 1° veo si VEL_MOTOR_DER = 255
-00008f f051                              breq  red_suave_vel_izquierda;si VEL_MOTOR_DER = 255 debo reducir la vel_motor_izq
+00008f f051                        breq  red_suave_vel_izquierda;si VEL_MOTOR_DER = 255 debo reducir la vel_motor_izq
                                  
 000090 e011                        ldi REG_TEMP, VAR_SUAVE_VALOR
 000091 0f51                        add VEL_MOTOR_DER_AUX, REG_TEMP
                                  
 000092 3550                        cpi VEL_MOTOR_DER_AUX, VEL_MAX ; ¿vel_motor_der = vel_motor_der + var_fuerte > 255 (vel max)?
-000093 f018                              brlo subo_suave_vel_derecha ;salta si la suma es menor
+000093 f018                        brlo subo_suave_vel_derecha ;salta si la suma es menor
                                  
 000094 3530                        cpi VEL_MOTOR_DER, VEL_MAX
-000095 f478                              brsh mot_der_vel_max
-000096 9508                        ret
+000095 f478                        brsh mot_der_vel_max
+                                   
+000096 c00d                        rjmp final_doblar_izq_suave
                                  
                                    subo_suave_vel_derecha:
 000097 e011                          ldi REG_TEMP, VAR_SUAVE_VALOR
 000098 0f31                          add VEL_MOTOR_DER, REG_TEMP
-000099 9508                      	ret
+000099 c00a                      	rjmp final_doblar_izq_suave
                                  
                                    red_suave_vel_izquierda:
 00009a 3041                          cpi VEL_MOTOR_IZQ, VAR_SUAVE_VALOR
-00009b f418                                brsh decre_suave_vel_mot_izq        ;si la vel izq es mayor a la var suave, puedo decrementar su valor
+00009b f418                          brsh decre_suave_vel_mot_izq        ;si la vel izq es mayor a la var suave, puedo decrementar su valor
+                                     
 00009c 3041                          cpi VEL_MOTOR_IZQ, VAR_SUAVE_VALOR
-00009d f020                                brlo mot_izq_vel_nula
-00009e 9508                          ret
+00009d f020                          brlo mot_izq_vel_nula
+00009e c005                        rjmp final_doblar_izq_suave
                                  
                                    decre_suave_vel_mot_izq:
 00009f e011                          ldi REG_TEMP, VAR_SUAVE_VALOR
 0000a0 1b41                          sub VEL_MOTOR_IZQ, REG_TEMP 
-0000a1 9508                        ret
+0000a1 c002                        rjmp final_doblar_izq_suave
                                    
                                    mot_izq_vel_nula:
-0000a2 e040                           ldi VEL_MOTOR_IZQ, 0x00
-0000a3 9508                        ret
+0000a2 e040                          ldi VEL_MOTOR_IZQ, 0x00
+0000a3 c000                        rjmp final_doblar_izq_suave
                                  
+                                   final_doblar_izq_suave:
 0000a4 9508                      ret             
                                  
                                  mot_der_vel_max:
 0000a5 e530                           ldi VEL_MOTOR_DER, VEL_MAX
-0000a6 9508                         ret
+0000a6 9508                      ret
                                  
                                  doblar_der_fuerte:
                                  
@@ -1247,28 +1250,31 @@ C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\
 0000a8 2f64                        mov VEL_MOTOR_IZQ_AUX,VEL_MOTOR_IZQ
                                  
 0000a9 3540                        cpi VEL_MOTOR_IZQ, VEL_MAX ; 1° veo si VEL_MOTOR_IZQ = 255
-0000aa f051                              breq red_fuerte_vel_derecha ;si VEL_MOTOR_IZQ = 255 debo reducir la vel_motor_der
+0000aa f051                        breq red_fuerte_vel_derecha ;si VEL_MOTOR_IZQ = 255 debo reducir la vel_motor_der
                                  
 0000ab e012                        ldi REG_TEMP, VAR_FUERTE_VALOR
 0000ac 0f61                        add VEL_MOTOR_IZQ_AUX, REG_TEMP
+                                   
 0000ad 3560                        cpi VEL_MOTOR_IZQ_AUX, VEL_MAX ; ¿vel_motor_izq = vel_motor_izq + var_fuerte > 255 (vel max)?
-0000ae f018                              brlo subo_fuerte_vel_izquierda ;salta si la suma es menor
+0000ae f018                        brlo subo_fuerte_vel_izquierda ;salta si la suma es menor
                                  
 0000af 3540                        cpi VEL_MOTOR_IZQ, VEL_MAX
-0000b0 f590                              brsh mot_izq_vel_max
-0000b1 9508                        ret
+0000b0 f590                        brsh mot_izq_vel_max
+                                   
+0000b1 c00f                        rjmp final_doblar_der_fuerte
                                  
                                    subo_fuerte_vel_izquierda:
 0000b2 e012                          ldi REG_TEMP, VAR_FUERTE_VALOR
 0000b3 0f41                          add VEL_MOTOR_IZQ, REG_TEMP
-0000b4 9508                      	ret
+0000b4 c00c                      	rjmp final_doblar_der_fuerte
                                  
                                    red_fuerte_vel_derecha:
 0000b5 3032                          cpi VEL_MOTOR_DER, VAR_FUERTE_VALOR
-0000b6 f418                                brsh decre_fuerte_vel_mot_der       ;si la vel der es mayor a la var suave, puedo decrementar su valor
+0000b6 f418                          brsh decre_fuerte_vel_mot_der       ;si la vel der es mayor a la var suave, puedo decrementar su valor
+                                     
 0000b7 3032                          cpi VEL_MOTOR_DER, VAR_FUERTE_VALOR
-0000b8 f020                                brlo mot_der_rev_izq_max
-0000b9 9508                          ret
+0000b8 f020                          brlo mot_der_rev_izq_max
+0000b9 c007                        rjmp final_doblar_der_fuerte
                                  
                                    decre_fuerte_vel_mot_der:
 0000ba e012                          ldi REG_TEMP, VAR_FUERTE_VALOR
@@ -1276,11 +1282,12 @@ C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\
 0000bc 9508                        ret
                                  
                                    mot_der_rev_izq_max:
-0000bd e030                           ldi VEL_MOTOR_DER, 0x00
-0000be e174                           ldi VEL_MOTOR_REV_DER, VEL_REVERSA
-0000bf ec48                           ldi VEL_MOTOR_IZQ, VEL_MAX_EXTREMOS
-0000c0 9508                         ret
+0000bd e030                          ldi VEL_MOTOR_DER, 0x00
+0000be e174                          ldi VEL_MOTOR_REV_DER, VEL_REVERSA
+0000bf ec48                          ldi VEL_MOTOR_IZQ, VEL_MAX_EXTREMOS
+0000c0 c000                        rjmp final_doblar_der_fuerte
                                  
+                                   final_doblar_der_fuerte:
 0000c1 9508                      ret
                                  
                                  doblar_der_suave:
@@ -1298,48 +1305,50 @@ C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\
                                      
 0000c8 e030                          ldi VEL_MOTOR_DER, 0x00
 0000c9 e540                          ldi VEL_MOTOR_IZQ, VEL_MAX
-0000ca 9508                        ret
+0000ca c017                        rjmp final_doblar_der_suave
                                  
                                    fin_desactivar_giro_extremo_der:
                                  
 0000cb 2f64                        mov VEL_MOTOR_IZQ_AUX,VEL_MOTOR_IZQ
                                  
 0000cc 3540                        cpi VEL_MOTOR_IZQ, VEL_MAX ; 1° veo si VEL_MOTOR_IZQ = 255
-0000cd f051                              breq red_suave_vel_derecha ;si VEL_MOTOR_IZQ = 255 debo reducir la vel_motor_der
+0000cd f051                        breq red_suave_vel_derecha ;si VEL_MOTOR_IZQ = 255 debo reducir la vel_motor_der
                                  
 0000ce e011                        ldi REG_TEMP, VAR_SUAVE_VALOR
 0000cf 0f61                        add VEL_MOTOR_IZQ_AUX, REG_TEMP
                                  
 0000d0 3560                        cpi VEL_MOTOR_IZQ_AUX, VEL_MAX ; ¿vel_motor_izq = vel_motor_izq + var_fuerte > 255 (vel max)?
-0000d1 f018                              brlo subo_suave_vel_izquierda ;salta si la suma es menor
+0000d1 f018                        brlo subo_suave_vel_izquierda ;salta si la suma es menor
                                  
 0000d2 3540                        cpi VEL_MOTOR_IZQ, VEL_MAX
-0000d3 f478                              brsh mot_izq_vel_max
-0000d4 9508                        ret
+0000d3 f478                        brsh mot_izq_vel_max
+                                   
+0000d4 c00d                        rjmp final_doblar_der_suave
                                  
                                    subo_suave_vel_izquierda:
 0000d5 e011                          ldi REG_TEMP, VAR_SUAVE_VALOR
 0000d6 0f41                          add VEL_MOTOR_IZQ, REG_TEMP
-0000d7 9508                        ret
+0000d7 c00a                        rjmp final_doblar_der_suave
                                  
                                    red_suave_vel_derecha:
 0000d8 3031                          cpi VEL_MOTOR_DER, VAR_SUAVE_VALOR
-0000d9 f418                                brsh decre_suave_vel_mot_der        ;si la vel der es mayor a la var suave, puedo decrementar su valor
+0000d9 f418                          brsh decre_suave_vel_mot_der        ;si la vel der es mayor a la var suave, puedo decrementar su valor
+                                     
 0000da 3031                          cpi VEL_MOTOR_DER, VAR_SUAVE_VALOR
-0000db f020                                brlo mot_der_vel_nula
-0000dc 9508                          ret
+0000db f020                          brlo mot_der_vel_nula
+0000dc c005                        rjmp final_doblar_der_suave
                                  
                                    decre_suave_vel_mot_der:
 0000dd e011                          ldi REG_TEMP, VAR_SUAVE_VALOR
 0000de 1b31                          sub VEL_MOTOR_DER,REG_TEMP 
-0000df 9508                        ret
+0000df c002                        rjmp final_doblar_der_suave
                                  
                                    mot_der_vel_nula:
-0000e0 e030                           ldi VEL_MOTOR_DER, 0x00     
-0000e1 9508                         ret
+0000e0 e030                          ldi VEL_MOTOR_DER, 0x00     
+0000e1 c000                        rjmp final_doblar_der_suave
+                                   
+                                   final_doblar_der_suave:
 0000e2 9508                      ret  
-                                 
-                                 
                                  
                                  mot_izq_vel_max:
 0000e3 e540                           ldi VEL_MOTOR_IZQ, VEL_MAX
@@ -1582,7 +1591,7 @@ C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\
                                  
 00017b 9593                        inc CONTADOR_TIMER
                                  
-00017c 3694                        cpi CONTADOR_TIMER, 100
+00017c 3798                        cpi CONTADOR_TIMER, 120
 00017d f04a                        brmi final_handler_interrup_overflow
                                  
 00017e e030                        ldi VEL_MOTOR_DER, 0x00
@@ -1638,7 +1647,7 @@ fmulsu:   0 icall :   0 ijmp  :   0 in    :   9 inc   :   5 jmp   :   1
 ld    :   0 ldd   :   0 ldi   :  79 lds   :   0 lpm   :   0 lsl   :   0 
 lsr   :   0 mov   :   5 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 
 neg   :   0 nop   :   0 or    :   0 ori   :   0 out   :  12 pop   :   5 
-push  :   5 rcall :   0 ret   :  40 reti  :   1 rjmp  :  11 rol   :   0 
+push  :   5 rcall :   0 ret   :  19 reti  :   1 rjmp  :  32 rol   :   0 
 ror   :   0 sbc   :   0 sbci  :   0 sbi   :   1 sbic  :   1 sbis  :   0 
 sbiw  :   0 sbr   :   0 sbrc  :   7 sbrs  :   1 sec   :   0 seh   :   0 
 sei   :   1 sen   :   0 ser   :   0 ses   :   0 set   :   0 sev   :   0 

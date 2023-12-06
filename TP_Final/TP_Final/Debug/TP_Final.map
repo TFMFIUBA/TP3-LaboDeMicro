@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.8  C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm Mon Dec 04 16:33:59 2023
+AVRASM ver. 2.2.8  C:\Users\tomas\Documents\universidad\labo de micro\TPS\TP4-LaboDeMicro\TP_Final\TP_Final\main.asm Mon Dec 04 18:55:26 2023
 
 
 EQU  SIGNATURE_000 0000001e
@@ -738,10 +738,12 @@ CSEG sigo_centro  00000063
 CSEG red_fuerte_vel_izquierda 00000077
 CSEG subo_fuerte_vel_derecha 00000074
 CSEG mot_der_vel_max 000000a5
+CSEG final_doblar_izq_fuerte 00000083
 CSEG decre_fuerte_vel_mot_izq 0000007c
 CSEG mot_izq_rev_der_max 0000007f
 CSEG desactivar_giro_extremo_izq 00000088
 CSEG fin_desactivar_giro_extremo_izq 0000008d
+CSEG final_doblar_izq_suave 000000a4
 CSEG red_suave_vel_izquierda 0000009a
 CSEG subo_suave_vel_derecha 00000097
 CSEG decre_suave_vel_mot_izq 0000009f
@@ -749,10 +751,12 @@ CSEG mot_izq_vel_nula 000000a2
 CSEG red_fuerte_vel_derecha 000000b5
 CSEG subo_fuerte_vel_izquierda 000000b2
 CSEG mot_izq_vel_max 000000e3
+CSEG final_doblar_der_fuerte 000000c1
 CSEG decre_fuerte_vel_mot_der 000000ba
 CSEG mot_der_rev_izq_max 000000bd
 CSEG desactivar_giro_extremo_der 000000c6
 CSEG fin_desactivar_giro_extremo_der 000000cb
+CSEG final_doblar_der_suave 000000e2
 CSEG red_suave_vel_derecha 000000d8
 CSEG subo_suave_vel_izquierda 000000d5
 CSEG decre_suave_vel_mot_der 000000dd
